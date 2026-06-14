@@ -105,6 +105,42 @@ class TransactionController extends Controller
         return $pdf->stream('struk-' . $transaction->invoice_number . '.pdf');
     }
 
+    public function hold(Transaction $transaction)
+    {
+        if ($transaction->status !== 'pending') {
+            return response()->json(['error' => 'Transaksi tidak bisa ditahan.'], 422);
+        }
+        $transaction->update(['status' => 'held']);
+        return response()->json(['success' => true, 'message' => 'Transaksi ditahan.']);
+    }
+
+    public function recall(Transaction $transaction)
+    {
+        $session = auth()->user()->activeSession();
+        if (!$session) {
+            return response()->json(['error' => 'Tidak ada sesi kasir aktif.'], 422);
+        }
+        if ($transaction->status !== 'held') {
+            return response()->json(['error' => 'Transaksi tidak dalam status ditahan.'], 422);
+        }
+        $transaction->update(['status' => 'pending']);
+        $transaction->load(['items.productVariant.product']);
+        return response()->json(['success' => true, 'transaction' => $transaction]);
+    }
+
+    public function heldList()
+    {
+        $session = auth()->user()->activeSession();
+        $heldTransactions = [];
+        if ($session) {
+            $heldTransactions = Transaction::where('cashier_session_id', $session->id)
+                ->where('status', 'held')
+                ->with(['items.productVariant.product'])
+                ->get();
+        }
+        return response()->json($heldTransactions);
+    }
+
     public function history(Request $request)
     {
         $query = Transaction::with(['cashierSession.user', 'payments.paymentMethod'])
