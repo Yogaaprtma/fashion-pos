@@ -184,7 +184,44 @@ class ProductController extends Controller
         $products = Product::with(['variants' => function ($q) {
             $q->where('is_active', true);
         }])->where('is_active', true)->get();
-
         return view('inventory.products.barcode', compact('products'));
+    }
+
+    public function uploadImage(Request $request, Product $product)
+    {
+        $request->validate([
+            'images'   => 'required|array|max:5',
+            'images.*' => 'image|mimes:jpg,jpeg,png,webp|max:3072',
+        ]);
+
+        foreach ($request->file('images') as $index => $image) {
+            $path = $image->store('product-images', 'public');
+            $isPrimary = $product->images()->count() === 0 && $index === 0;
+            ProductImage::create([
+                'product_id' => $product->id,
+                'image_path' => $path,
+                'is_primary'  => $isPrimary,
+                'sort_order'  => $product->images()->max('sort_order') + $index + 1,
+            ]);
+        }
+
+        return back()->with('success', count($request->file('images')) . ' foto berhasil diunggah.');
+    }
+
+    public function deleteImage(Product $product, ProductImage $image)
+    {
+        if ($image->product_id !== $product->id) {
+            abort(403);
+        }
+
+        \Illuminate\Support\Facades\Storage::disk('public')->delete($image->image_path);
+        $image->delete();
+
+        // Jika foto yang dihapus adalah primary, set foto pertama yang tersisa menjadi primary
+        if ($image->is_primary) {
+            $product->images()->oldest()->first()?->update(['is_primary' => true]);
+        }
+
+        return back()->with('success', 'Foto produk berhasil dihapus.');
     }
 }
