@@ -139,4 +139,61 @@ class ReportController extends Controller
             ->take(10)
             ->get();
     }
+
+    public function cashierReport(Request $request)
+    {
+        $dateFrom = $request->date_from ?? now()->startOfMonth()->toDateString();
+        $dateTo   = $request->date_to   ?? now()->toDateString();
+        $userId   = $request->user_id;
+
+        $query = \App\Models\CashierSession::with(['user', 'transactions'])
+            ->whereBetween('opened_at', [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59'])
+            ->when($userId, fn($q) => $q->where('user_id', $userId))
+            ->latest('opened_at');
+
+        $sessions = $query->get();
+
+        // Group by kasir
+        $kasirData = $sessions->groupBy('user_id')->map(function ($sessionGroup) {
+            $user = $sessionGroup->first()->user;
+            $totalSales = $sessionGroup->sum('total_sales');
+            $totalTrx   = $sessionGroup->sum('total_transactions');
+            $totalDiff  = $sessionGroup->sum('difference');
+            return [
+                'user'        => $user,
+                'sessions'    => $sessionGroup,
+                'total_sales' => $totalSales,
+                'total_trx'   => $totalTrx,
+                'total_diff'  => $totalDiff,
+                'avg_per_trx' => $totalTrx > 0 ? round($totalSales / $totalTrx) : 0,
+            ];
+        });
+
+        $users = \App\Models\User::whereHas('role', fn($q) => $q->where('name', 'kasir'))->get();
+
+        return view('reports.cashier', compact('kasirData', 'sessions', 'users', 'dateFrom', 'dateTo'));
+    }
+
+    public function discountReport(Request $request)
+    {
+        $dateFrom = $request->date_from ?? now()->startOfMonth()->toDateString();
+        $dateTo   = $request->date_to   ?? now()->toDateString();
+
+        $transactions = \App\Models\Transaction::with(['items', 'cashierSession.user'])
+            ->whereIn('status', ['completed', 'partial_return'])
+            ->where('discount_amount', '>', 0)
+            ->whereBetween('created_at', [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59'])
+            ->latest()
+            ->paginate(20)
+            ->withQueryString();
+
+        $summary = \App\Models\Transaction::whereIn('status', ['completed', 'partial_return'])
+            ->where('discount_amount', '>', 0)
+            ->whereBetween('created_at', [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59'])
+            ->selectRaw('SUM(discount_amount) as total_discount, COUNT(*) as total_trx, AVG(discount_percent) as avg_discount_pct')
+            ->first();
+
+        return view('reports.discount', compact('transactions', 'summary', 'dateFrom', 'dateTo'));
+    }
 }
+
