@@ -160,6 +160,24 @@
                 <span class="nav-label">Lap. Inventori</span>
             </a>
 
+            <a href="{{ route('reports.cashier') }}"
+               class="nav-item {{ request()->routeIs('reports.cashier') ? 'active' : '' }}"
+               data-tooltip="Lap. per Kasir">
+                <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                <span class="nav-label">Lap. per Kasir</span>
+            </a>
+
+            <a href="{{ route('reports.discount') }}"
+               class="nav-item {{ request()->routeIs('reports.discount') ? 'active' : '' }}"
+               data-tooltip="Laporan Diskon">
+                <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+                </svg>
+                <span class="nav-label">Lap. Diskon</span>
+            </a>
+
             <a href="{{ route('pos.history') }}"
                class="nav-item {{ request()->routeIs('pos.history') ? 'active' : '' }}"
                data-tooltip="Riwayat Transaksi">
@@ -168,6 +186,17 @@
                 </svg>
                 <span class="nav-label">Riwayat Transaksi</span>
             </a>
+
+            @if(auth()->user()->canAccess('pos.return'))
+            <a href="{{ route('returns.index') }}"
+               class="nav-item {{ request()->routeIs('returns.*') ? 'active' : '' }}"
+               data-tooltip="Manajemen Retur">
+                <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 15v-1a4 4 0 00-4-4H8m0 0l3 3m-3-3l3-3m9 14V5a2 2 0 00-2-2H6a2 2 0 00-2 2v16l4-2 4 2 4-2 4 2z"/>
+                </svg>
+                <span class="nav-label">Manajemen Retur</span>
+            </a>
+            @endif
             @endif
 
             <!-- SISTEM -->
@@ -223,11 +252,13 @@
         <!-- Sidebar Footer: User Profile (always visible) -->
         <div class="sidebar-footer">
             <div class="user-card">
-                <img src="{{ auth()->user()->avatar_url }}" alt="{{ auth()->user()->name }}" class="user-avatar">
-                <div style="flex:1;min-width:0;">
-                    <div class="user-name">{{ auth()->user()->name }}</div>
-                    <div class="user-role">{{ auth()->user()->role?->display_name ?? 'User' }}</div>
-                </div>
+                <a href="{{ route('profile.show') }}" style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;text-decoration:none;">
+                    <img src="{{ auth()->user()->avatar_url }}" alt="{{ auth()->user()->name }}" class="user-avatar" style="flex-shrink:0;">
+                    <div style="min-width:0;">
+                        <div class="user-name">{{ auth()->user()->name }}</div>
+                        <div class="user-role">{{ auth()->user()->role?->display_name ?? 'User' }}</div>
+                    </div>
+                </a>
                 <form method="POST" action="{{ route('logout') }}" style="flex-shrink:0">
                     @csrf
                     <button type="submit" class="btn-ghost btn btn-sm btn-icon" title="Logout" style="width:32px;height:32px;padding:0">
