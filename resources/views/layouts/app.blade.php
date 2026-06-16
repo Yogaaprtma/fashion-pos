@@ -6,6 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Dashboard') — {{ config('app.name', 'FashionPOS') }}</title>
     <meta name="description" content="Sistem POS & Manajemen Swalayan Pakaian">
+    <link rel="icon" type="image/png" href="{{ asset('img/logo.png') }}">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -55,13 +56,9 @@
         <!-- Logo Header -->
         <div class="sidebar-header">
             <a href="{{ route('dashboard') }}" class="sidebar-logo" title="FashionPOS">
-                <div class="sidebar-logo-icon">
-                    <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="1.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z"/>
-                    </svg>
-                </div>
+                <img src="{{ asset('img/logo.png') }}" alt="FashionPOS Logo" style="width: 36px; height: 36px; border-radius: 8px; object-fit: cover; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
                 <div style="min-width:0; overflow:hidden;">
-                    <div class="sidebar-logo-text">FashionPOS</div>
+                    <div class="sidebar-logo-text" style="background: linear-gradient(90deg, #1E1B4B, #4F46E5); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">FashionPOS</div>
                     <div class="sidebar-logo-sub">{{ \App\Models\StoreSetting::get('store_name', 'Swalayan Pakaian') }}</div>
                 </div>
             </a>
