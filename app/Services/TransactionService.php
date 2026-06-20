@@ -44,6 +44,7 @@ class TransactionService
             // Create transaction
             $transaction = Transaction::create([
                 'cashier_session_id' => $session->id,
+                'customer_id' => $data['customer_id'] ?? null,
                 'invoice_number' => $invoiceNumber,
                 'subtotal' => $subtotal,
                 'discount_amount' => $discountAmount,
@@ -105,6 +106,19 @@ class TransactionService
             // Update session totals
             $session->increment('total_transactions');
             $session->increment('total_sales', $grandTotal);
+
+            // Update customer if exists
+            if (!empty($data['customer_id'])) {
+                $customer = \App\Models\Customer::find($data['customer_id']);
+                if ($customer) {
+                    $customer->increment('total_spent', $grandTotal);
+                    // 1 point for every 10,000
+                    $pointsEarned = floor($grandTotal / 10000);
+                    if ($pointsEarned > 0) {
+                        $customer->increment('points', $pointsEarned);
+                    }
+                }
+            }
 
             AuditLog::record('create_transaction', $transaction, [], ['invoice' => $invoiceNumber, 'total' => $grandTotal]);
 
