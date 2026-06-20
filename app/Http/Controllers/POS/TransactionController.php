@@ -33,15 +33,61 @@ class TransactionController extends Controller
 
         try {
             $transaction = $this->transactionService->createTransaction($request->all(), $session);
+            $transaction->load('customer');
             return response()->json([
                 'success' => true,
                 'message' => 'Transaksi berhasil.',
                 'transaction' => $transaction,
                 'invoice_number' => $transaction->invoice_number,
+                'customer_phone' => $transaction->customer?->phone,
             ]);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 422);
         }
+    }
+
+    public function whatsapp(Transaction $transaction)
+    {
+        $transaction->load(['items.productVariant.product', 'payments.paymentMethod', 'cashierSession.user', 'customer']);
+        $storeName = StoreSetting::get('store_name', 'FashionPOS');
+        $phone = $transaction->customer?->phone;
+
+        if (!$phone) {
+            abort(404, 'Pelanggan tidak memiliki nomor WA.');
+        }
+
+        // Format phone: remove leading 0, add 62
+        $phone = preg_replace('/^0/', '62', $phone);
+        $phone = preg_replace('/[^0-9]/', '', $phone);
+
+        $itemLines = $transaction->items->map(function ($item) {
+            return "- {$item->product_name} ({$item->variant_info}) x{$item->quantity} = Rp " . number_format($item->subtotal, 0, ',', '.');
+        })->join("\n");
+
+        $message = "🧾 *STRUK BELANJA - {$storeName}*\n";
+        $message .= "================================\n";
+        $message .= "No. Invoice: *{$transaction->invoice_number}*\n";
+        $message .= "Tanggal: " . $transaction->created_at->format('d/m/Y H:i') . "\n";
+        $message .= "================================\n";
+        $message .= $itemLines . "\n";
+        $message .= "================================\n";
+        if ($transaction->discount_amount > 0) {
+            $message .= "Diskon: -Rp " . number_format($transaction->discount_amount, 0, ',', '.') . "\n";
+        }
+        if ($transaction->tax_amount > 0) {
+            $message .= "Pajak: Rp " . number_format($transaction->tax_amount, 0, ',', '.') . "\n";
+        }
+        $message .= "*TOTAL: Rp " . number_format($transaction->grand_total, 0, ',', '.') . "*\n";
+        $message .= "Pembayaran: " . $transaction->payments->map(fn($p) => $p->paymentMethod->name . ' Rp ' . number_format($p->amount, 0, ',', '.'))->join(', ') . "\n";
+        if ($transaction->change_amount > 0) {
+            $message .= "Kembalian: Rp " . number_format($transaction->change_amount, 0, ',', '.') . "\n";
+        }
+        $message .= "================================\n";
+        $message .= "Terima kasih atas kunjungan Anda! 🙏";
+
+        $waUrl = 'https://wa.me/' . $phone . '?text=' . rawurlencode($message);
+
+        return redirect()->away($waUrl);
     }
 
     public function show(Transaction $transaction)
