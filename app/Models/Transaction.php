@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Transaction extends Model
 {
     protected $fillable = [
-        'cashier_session_id', 'invoice_number', 'subtotal',
+        'cashier_session_id', 'invoice_number', 'customer_id', 'subtotal',
         'discount_amount', 'discount_percent', 'tax_amount', 'tax_percent',
         'grand_total', 'paid_amount', 'change_amount', 'status',
         'voided_by', 'voided_at', 'void_reason', 'notes',
@@ -31,6 +31,11 @@ class Transaction extends Model
     public function items()
     {
         return $this->hasMany(TransactionItem::class);
+    }
+
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class);
     }
 
     public function payments()
