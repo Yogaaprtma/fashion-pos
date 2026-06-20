@@ -42,6 +42,8 @@ class RolePermissionSeeder extends Seeder
             ['name' => 'report.sales', 'module' => 'report', 'display_name' => 'Laporan Penjualan'],
             ['name' => 'report.financial', 'module' => 'report', 'display_name' => 'Laporan Keuangan'],
             ['name' => 'report.export', 'module' => 'report', 'display_name' => 'Export Laporan'],
+            // Customers
+            ['name' => 'customer.manage', 'module' => 'customer', 'display_name' => 'Kelola Pelanggan'],
             // Assets
             ['name' => 'asset.view', 'module' => 'asset', 'display_name' => 'Lihat Aset'],
             ['name' => 'asset.manage', 'module' => 'asset', 'display_name' => 'Kelola Aset'],
@@ -74,13 +76,13 @@ class RolePermissionSeeder extends Seeder
         $supervisorPerms = Permission::whereIn('name', [
             'pos.access', 'pos.void', 'pos.return', 'pos.discount', 'pos.session',
             'inventory.view', 'inventory.opname',
-            'report.sales', 'purchase.view', 'asset.view',
+            'report.sales', 'purchase.view', 'asset.view', 'customer.manage'
         ])->pluck('id');
         $supervisor->permissions()->sync($supervisorPerms);
 
         $kasirPerms = Permission::whereIn('name', [
             'pos.access', 'pos.return', 'pos.discount', 'pos.session',
-            'inventory.view',
+            'inventory.view', 'customer.manage',
         ])->pluck('id');
         $kasir->permissions()->sync($kasirPerms);
 
