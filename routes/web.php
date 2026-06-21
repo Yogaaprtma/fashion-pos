@@ -68,6 +68,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/transaction/{transaction}/return', [TransactionController::class, 'processReturn'])->middleware('permission:pos.return')->name('transaction.return');
         Route::get('/transaction/{transaction}/receipt', [TransactionController::class, 'receipt'])->name('transaction.receipt');
         Route::get('/transaction/{transaction}/receipt-pdf', [TransactionController::class, 'receiptPdf'])->name('transaction.receipt-pdf');
+        Route::get('/transaction/{transaction}/whatsapp', [TransactionController::class, 'whatsapp'])->name('transaction.whatsapp');
         Route::get('/history', [TransactionController::class, 'history'])->name('history');
 
         // Hold & Recall
@@ -132,6 +133,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/sales/export-excel', [ReportController::class, 'exportSalesExcel'])->name('sales.export-excel');
         Route::get('/cashier', [ReportController::class, 'cashierReport'])->name('cashier');
         Route::get('/discount', [ReportController::class, 'discountReport'])->name('discount');
+        Route::get('/category', [ReportController::class, 'categoryReport'])->name('category');
+        Route::get('/payment-method', [ReportController::class, 'paymentMethodReport'])->name('payment-method');
+        Route::get('/returns-voids', [ReportController::class, 'returnsVoidsReport'])->name('returns-voids');
+        Route::get('/busy-hours', [ReportController::class, 'busyHoursReport'])->name('busy-hours');
         Route::get('/financial', [ReportController::class, 'financialIndex'])->middleware('permission:report.financial')->name('financial');
         Route::get('/financial/export-pdf', [ReportController::class, 'exportFinancialPdf'])->middleware('permission:report.financial')->name('financial.export-pdf');
         Route::get('/inventory', [ReportController::class, 'inventoryIndex'])->name('inventory');
@@ -143,6 +148,14 @@ Route::middleware('auth')->group(function () {
     Route::prefix('assets')->name('assets.')->middleware('permission:asset.view')->group(function () {
         Route::resource('/', \App\Http\Controllers\AssetController::class)->parameters(['' => 'asset']);
         Route::resource('categories', \App\Http\Controllers\AssetCategoryController::class);
+    });
+
+    // ============================================================
+    // CUSTOMERS (MEMBER) ROUTES
+    // ============================================================
+    Route::prefix('customers')->name('customers.')->middleware('permission:customer.manage')->group(function () {
+        Route::get('/search', [\App\Http\Controllers\CustomerController::class, 'search'])->name('search');
+        Route::resource('/', \App\Http\Controllers\CustomerController::class)->parameters(['' => 'customer']);
     });
 
     // ============================================================
