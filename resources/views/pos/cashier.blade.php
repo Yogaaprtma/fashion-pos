@@ -109,6 +109,19 @@
 
         <!-- Cart Items -->
         <div class="cart-items" id="cartItems">
+
+        <!-- Customer Search Bar (inside cart, above items) -->
+        <div style="padding:8px 12px;border-bottom:1px solid var(--border);background:var(--bg-elevated)">
+            <div style="font-size:11px;color:var(--text-muted);font-weight:600;margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px">👤 Pelanggan</div>
+            <div style="position:relative">
+                <input type="text" id="customerSearch" class="form-control" placeholder="Cari nama / no. telp..." autocomplete="off"
+                       oninput="searchCustomer(this.value)" style="height:32px;font-size:12px;padding-right:60px">
+                <div id="selectedCustomerBadge" style="display:none;position:absolute;right:4px;top:4px;background:#4F46E5;color:white;border-radius:6px;padding:2px 8px;font-size:11px;cursor:pointer" onclick="clearCustomer()">✕ hapus</div>
+            </div>
+            <div id="customerDropdown" style="display:none;position:absolute;z-index:100;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;width:calc(100% - 32px);margin-top:2px;box-shadow:var(--shadow-lg)"></div>
+        </div>
+        <input type="hidden" id="selectedCustomerId" value="">
+
             <div class="empty-state" style="padding:40px 20px" id="emptyCart">
                 <div class="empty-state-icon">🛒</div>
                 <div class="empty-state-title">Keranjang Kosong</div>
@@ -209,20 +222,26 @@
      PAYMENT MODAL
      ============================================================ -->
 <div class="modal-overlay" id="paymentModal" style="display:none">
-    <div class="modal" style="max-width:480px">
+    <div class="modal" style="max-width:520px">
         <div class="modal-header">
             <div class="modal-title">💳 Pembayaran</div>
             <button onclick="closePaymentModal()" class="btn btn-sm btn-secondary btn-icon">✕</button>
         </div>
         <div class="modal-body">
             <!-- Total Due -->
-            <div style="text-align:center;margin-bottom:20px;padding:20px;background:var(--bg-elevated);border-radius:12px;border:1px solid var(--border)">
+            <div style="text-align:center;margin-bottom:16px;padding:16px;background:var(--bg-elevated);border-radius:12px;border:1px solid var(--border)">
                 <div style="font-size:12px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px">Total Pembayaran</div>
                 <div style="font-size:32px;font-weight:900;color:var(--text-primary);font-family:monospace;margin-top:4px" id="payTotalDisplay">Rp 0</div>
             </div>
 
-            <!-- Payment Methods -->
-            <div style="margin-bottom:16px">
+            <!-- Payment Mode Toggle -->
+            <div style="display:flex;gap:8px;margin-bottom:14px">
+                <button id="modeSingleBtn" onclick="setPaymentMode('single')" class="btn btn-primary" style="flex:1;font-size:12px">💵 Satu Metode</button>
+                <button id="modeSplitBtn" onclick="setPaymentMode('split')" class="btn btn-secondary" style="flex:1;font-size:12px">🔀 Split Payment</button>
+            </div>
+
+            <!-- SINGLE PAYMENT -->
+            <div id="singlePaySection">
                 <div style="font-size:12px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">Metode Pembayaran</div>
                 <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
                     @foreach($paymentMethods as $pm)
@@ -232,30 +251,42 @@
                     </button>
                     @endforeach
                 </div>
-            </div>
-
-            <!-- Cash Amount -->
-            <div id="cashSection">
-                <div style="font-size:12px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Nominal Diterima</div>
-                <input type="number" id="cashInput" class="form-control" placeholder="Masukkan nominal bayar"
-                       oninput="calculateChange()" style="font-size:18px;font-weight:700;text-align:center;height:52px">
-                <!-- Quick amount buttons -->
-                <div id="quickAmounts" style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px"></div>
-
-                <!-- Change -->
-                <div style="margin-top:12px;padding:14px;border-radius:10px;border:1px solid var(--border)"
-                     id="changeDisplay" style="display:none">
-                    <div class="flex-between">
-                        <span style="font-size:14px;color:var(--text-secondary)">Kembalian</span>
-                        <span style="font-size:22px;font-weight:800;font-family:monospace;color:#34D399" id="changeAmount">Rp 0</span>
+                <!-- Cash Amount -->
+                <div id="cashSection" style="margin-top:12px">
+                    <div style="font-size:12px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Nominal Diterima</div>
+                    <input type="number" id="cashInput" class="form-control" placeholder="Masukkan nominal bayar"
+                           oninput="calculateChange()" style="font-size:18px;font-weight:700;text-align:center;height:52px">
+                    <div id="quickAmounts" style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px"></div>
+                    <div style="margin-top:12px;padding:14px;border-radius:10px;border:1px solid var(--border)" id="changeDisplay">
+                        <div class="flex-between">
+                            <span style="font-size:14px;color:var(--text-secondary)">Kembalian</span>
+                            <span style="font-size:22px;font-weight:800;font-family:monospace;color:#34D399" id="changeAmount">Rp 0</span>
+                        </div>
                     </div>
+                </div>
+                <div id="referenceSection" style="display:none;margin-top:8px">
+                    <label class="form-label">No. Referensi (opsional)</label>
+                    <input type="text" id="referenceInput" class="form-control" placeholder="Mis: no. otorisasi kartu">
                 </div>
             </div>
 
-            <!-- Reference Number (for non-cash) -->
-            <div id="referenceSection" style="display:none;margin-top:8px">
-                <label class="form-label">No. Referensi (opsional)</label>
-                <input type="text" id="referenceInput" class="form-control" placeholder="Mis: no. otorisasi kartu">
+            <!-- SPLIT PAYMENT -->
+            <div id="splitPaySection" style="display:none">
+                <div style="font-size:12px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">Rincian Pembayaran Kombinasi</div>
+                <div id="splitPaymentRows">
+                    <!-- Rows generated by JS -->
+                </div>
+                <button onclick="addSplitRow()" class="btn btn-secondary btn-sm" style="width:100%;margin-top:8px;font-size:12px">+ Tambah Metode Lain</button>
+                <div style="margin-top:12px;padding:14px;border-radius:10px;border:1px solid var(--border)">
+                    <div class="flex-between">
+                        <span style="font-size:13px;color:var(--text-secondary)">Total Dibayar</span>
+                        <span style="font-size:16px;font-weight:800;font-family:monospace;color:#34D399" id="splitPaidDisplay">Rp 0</span>
+                    </div>
+                    <div class="flex-between" style="margin-top:6px">
+                        <span style="font-size:13px;color:var(--text-secondary)">Sisa</span>
+                        <span style="font-size:16px;font-weight:800;font-family:monospace" id="splitRemainingDisplay" style="color:#FB7185">Rp 0</span>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="modal-footer">
@@ -326,6 +357,11 @@
                     + Transaksi Baru
                 </button>
             </div>
+            <div style="margin-top:10px">
+                <button onclick="sendWhatsApp()" class="btn btn-secondary" id="waBtn" style="width:100%;background:rgba(37,211,102,0.15);border-color:#25D366;color:#25D366;display:none">
+                    📱 Kirim Struk via WhatsApp
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -343,7 +379,13 @@
     let selectedVariant = null;
     let selectedPaymentMethod = null;
     let lastTransactionId = null;
+    let lastTransactionInvoice = null;
     let searchTimeout = null;
+    let paymentMode = 'single'; // 'single' or 'split'
+    let splitPayments = [];
+    let selectedCustomer = null;
+    let customerSearchTimeout = null;
+    const PAYMENT_METHODS = @json($paymentMethods);
 
     // ==========================================================
     // SEARCH
@@ -663,10 +705,16 @@
         document.getElementById('cashInput').value = '';
         document.getElementById('changeAmount').textContent = 'Rp 0';
         selectedPaymentMethod = null;
+        paymentMode = 'single';
+        splitPayments = [];
 
-        // Reset selection
+        // Reset button states
         document.querySelectorAll('.payment-method-btn').forEach(b => b.classList.remove('active'));
         document.getElementById('processPayBtn').disabled = true;
+        document.getElementById('modeSingleBtn').className = 'btn btn-primary';
+        document.getElementById('modeSplitBtn').className = 'btn btn-secondary';
+        document.getElementById('singlePaySection').style.display = 'block';
+        document.getElementById('splitPaySection').style.display = 'none';
 
         // Generate quick amount buttons
         const quickDiv = document.getElementById('quickAmounts');
@@ -679,6 +727,71 @@
         `).join('');
 
         document.getElementById('paymentModal').style.display = 'flex';
+    }
+
+    function setPaymentMode(mode) {
+        paymentMode = mode;
+        if (mode === 'single') {
+            document.getElementById('modeSingleBtn').className = 'btn btn-primary';
+            document.getElementById('modeSplitBtn').className = 'btn btn-secondary';
+            document.getElementById('singlePaySection').style.display = 'block';
+            document.getElementById('splitPaySection').style.display = 'none';
+            document.getElementById('processPayBtn').disabled = !selectedPaymentMethod;
+        } else {
+            document.getElementById('modeSingleBtn').className = 'btn btn-secondary';
+            document.getElementById('modeSplitBtn').className = 'btn btn-primary';
+            document.getElementById('singlePaySection').style.display = 'none';
+            document.getElementById('splitPaySection').style.display = 'block';
+            splitPayments = [];
+            document.getElementById('splitPaymentRows').innerHTML = '';
+            addSplitRow();
+            recalcSplit();
+        }
+    }
+
+    function addSplitRow() {
+        const rowId = Date.now();
+        const row = document.createElement('div');
+        row.id = `split-row-${rowId}`;
+        row.style.cssText = 'display:grid;grid-template-columns:1fr 130px 36px;gap:8px;margin-bottom:8px;align-items:center';
+        const methodOptions = PAYMENT_METHODS.map(pm =>
+            `<option value="${pm.id}" data-type="${pm.type}">${pm.type_icon ?? ''} ${pm.name}</option>`
+        ).join('');
+        row.innerHTML = `
+            <select class="form-control split-method" data-rowid="${rowId}" onchange="recalcSplit()" style="height:38px;font-size:12px">
+                ${methodOptions}
+            </select>
+            <input type="number" class="form-control split-amount" placeholder="Nominal" min="0"
+                   data-rowid="${rowId}" oninput="recalcSplit()" style="height:38px;font-size:13px;text-align:right">
+            <button onclick="removeSplitRow('${rowId}')" class="btn btn-sm" style="color:#FB7185;background:rgba(251,113,133,.1);border:1px solid rgba(251,113,133,.3);height:38px">&times;</button>
+        `;
+        document.getElementById('splitPaymentRows').appendChild(row);
+
+        // Auto-fill remaining for last row
+        const total = getGrandTotal();
+        const alreadyEntered = [...document.querySelectorAll('.split-amount')].slice(0,-1).reduce((s,e) => s + (parseFloat(e.value)||0), 0);
+        const remaining = total - alreadyEntered;
+        if (remaining > 0) {
+            row.querySelector('.split-amount').value = remaining;
+        }
+        recalcSplit();
+    }
+
+    function removeSplitRow(rowId) {
+        const row = document.getElementById(`split-row-${rowId}`);
+        if (row) row.remove();
+        recalcSplit();
+    }
+
+    function recalcSplit() {
+        const total = getGrandTotal();
+        const paid = [...document.querySelectorAll('.split-amount')].reduce((s,e) => s + (parseFloat(e.value)||0), 0);
+        const remaining = total - paid;
+        document.getElementById('splitPaidDisplay').textContent = formatCurrency(paid);
+        const remEl = document.getElementById('splitRemainingDisplay');
+        remEl.textContent = remaining > 0 ? `Kurang ${formatCurrency(remaining)}` : 'Lunas ✓';
+        remEl.style.color = remaining > 0 ? '#FB7185' : '#34D399';
+        document.getElementById('processPayBtn').disabled = remaining > 0;
     }
 
     function roundUp(n, to) { return Math.ceil(n / to) * to; }
@@ -721,13 +834,27 @@
 
     async function processPayment() {
         const total = getGrandTotal();
-        const isCash = selectedPaymentMethod?.type === 'cash';
-        const paid = isCash ? parseFloat(document.getElementById('cashInput').value) : total;
-        const change = isCash ? paid - total : 0;
-        const refNum = document.getElementById('referenceInput')?.value || null;
-
         const discountAmt = parseFloat(document.getElementById('discountAmount').value) || 0;
         const discountPct = parseFloat(document.getElementById('discountPercent').value) || 0;
+        const customerId = document.getElementById('selectedCustomerId').value || null;
+
+        let payments = [];
+        let change = 0;
+
+        if (paymentMode === 'single') {
+            const isCash = selectedPaymentMethod?.type === 'cash';
+            const paid = isCash ? parseFloat(document.getElementById('cashInput').value) : total;
+            change = isCash ? paid - total : 0;
+            const refNum = document.getElementById('referenceInput')?.value || null;
+            payments = [{ payment_method_id: selectedPaymentMethod.id, amount: paid, reference_number: refNum }];
+        } else {
+            // Split payment
+            [...document.querySelectorAll('#splitPaymentRows > div')].forEach(row => {
+                const methodId = parseInt(row.querySelector('.split-method').value);
+                const amount = parseFloat(row.querySelector('.split-amount').value) || 0;
+                if (amount > 0) payments.push({ payment_method_id: methodId, amount });
+            });
+        }
 
         const payload = {
             items: cart.map(i => ({
@@ -736,14 +863,11 @@
                 unit_price: i.unit_price,
                 discount_amount: i.discount_amount,
             })),
-            payments: [{
-                payment_method_id: selectedPaymentMethod.id,
-                amount: paid,
-                reference_number: refNum,
-            }],
+            payments,
             discount_amount: discountAmt,
             discount_percent: discountPct,
             notes: document.getElementById('notesInput').value,
+            customer_id: customerId,
         };
 
         document.getElementById('processPayBtn').disabled = true;
@@ -760,10 +884,12 @@
 
             if (data.success) {
                 lastTransactionId = data.transaction.id;
+                lastTransactionInvoice = data.invoice_number;
                 closePaymentModal();
-                showReceiptModal(data.invoice_number, change);
-                // Clear cart
+                showReceiptModal(data.invoice_number, change, data.customer_phone);
+                // Clear cart and customer
                 cart = [];
+                clearCustomer();
                 document.getElementById('discountAmount').value = '';
                 document.getElementById('discountPercent').value = '';
                 document.getElementById('notesInput').value = '';
@@ -785,10 +911,23 @@
         document.getElementById('processPayBtn').textContent = '✓ Proses Pembayaran';
     }
 
-    function showReceiptModal(invoiceNumber, change) {
+    function showReceiptModal(invoiceNumber, change, customerPhone) {
         document.getElementById('receiptInvoice').textContent = `Invoice: ${invoiceNumber}`;
         document.getElementById('receiptChange').textContent = change > 0 ? `Kembalian: ${formatCurrency(change)}` : 'Lunas ✓';
+        // Show WA button if customer has a phone number
+        const waBtn = document.getElementById('waBtn');
+        if (customerPhone) {
+            waBtn.style.display = 'block';
+        } else {
+            waBtn.style.display = 'none';
+        }
         document.getElementById('receiptModal').style.display = 'flex';
+    }
+
+    function sendWhatsApp() {
+        if (!lastTransactionId) return;
+        const url = `/pos/transaction/${lastTransactionId}/whatsapp`;
+        window.open(url, '_blank');
     }
 
     function printReceipt() {
@@ -808,6 +947,48 @@
     }
 
     // ==========================================================
+    // CUSTOMER SEARCH
+    // ==========================================================
+    function searchCustomer(query) {
+        clearTimeout(customerSearchTimeout);
+        if (!query || query.length < 2) {
+            document.getElementById('customerDropdown').style.display = 'none';
+            return;
+        }
+        customerSearchTimeout = setTimeout(async () => {
+            const resp = await fetch(`/customers/search?q=${encodeURIComponent(query)}`, { headers: { 'X-CSRF-TOKEN': CSRF } });
+            const customers = await resp.json();
+            const dd = document.getElementById('customerDropdown');
+            if (!customers.length) { dd.style.display = 'none'; return; }
+            dd.innerHTML = customers.map(c => `
+                <div onclick="selectCustomer(${JSON.stringify(c).replace(/"/g, '&quot;')})" style="padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--border);font-size:13px" onmouseover="this.style.background='var(--bg-elevated)'" onmouseout="this.style.background=''">
+                    <strong>${c.name}</strong>
+                    <span style="color:var(--text-muted);margin-left:8px">${c.phone || ''}</span>
+                    ${c.is_member ? '<span style="margin-left:8px;font-size:10px;background:#4F46E5;color:white;border-radius:4px;padding:1px 6px">MEMBER</span>' : ''}
+                    <span style="color:#F59E0B;font-size:11px;float:right">${c.points} pts</span>
+                </div>
+            `).join('');
+            dd.style.display = 'block';
+        }, 300);
+    }
+
+    function selectCustomer(c) {
+        selectedCustomer = c;
+        document.getElementById('selectedCustomerId').value = c.id;
+        document.getElementById('customerSearch').value = c.name;
+        document.getElementById('selectedCustomerBadge').style.display = 'block';
+        document.getElementById('customerDropdown').style.display = 'none';
+    }
+
+    function clearCustomer() {
+        selectedCustomer = null;
+        document.getElementById('selectedCustomerId').value = '';
+        document.getElementById('customerSearch').value = '';
+        document.getElementById('selectedCustomerBadge').style.display = 'none';
+        document.getElementById('customerDropdown').style.display = 'none';
+    }
+
+    // ==========================================================
     // KEYBOARD SHORTCUTS
     // ==========================================================
     document.addEventListener('keydown', e => {
@@ -817,6 +998,14 @@
             document.querySelectorAll('.modal-overlay').forEach(m => {
                 if (m.style.display === 'flex') m.style.display = 'none';
             });
+            document.getElementById('customerDropdown').style.display = 'none';
+        }
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', e => {
+        if (!e.target.closest('#customerSearch') && !e.target.closest('#customerDropdown')) {
+            document.getElementById('customerDropdown').style.display = 'none';
         }
     });
 
