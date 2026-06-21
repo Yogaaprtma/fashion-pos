@@ -178,6 +178,42 @@
                 <span class="nav-label">Lap. Diskon</span>
             </a>
 
+            <a href="{{ route('reports.category') }}"
+               class="nav-item {{ request()->routeIs('reports.category') ? 'active' : '' }}"
+               data-tooltip="Lap. per Kategori">
+                <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+                </svg>
+                <span class="nav-label">Lap. Kategori</span>
+            </a>
+
+            <a href="{{ route('reports.payment-method') }}"
+               class="nav-item {{ request()->routeIs('reports.payment-method') ? 'active' : '' }}"
+               data-tooltip="Lap. per Metode Bayar">
+                <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                </svg>
+                <span class="nav-label">Lap. Metode Bayar</span>
+            </a>
+
+            <a href="{{ route('reports.returns-voids') }}"
+               class="nav-item {{ request()->routeIs('reports.returns-voids') ? 'active' : '' }}"
+               data-tooltip="Laporan Retur & Void">
+                <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z"/>
+                </svg>
+                <span class="nav-label">Lap. Retur & Void</span>
+            </a>
+
+            <a href="{{ route('reports.busy-hours') }}"
+               class="nav-item {{ request()->routeIs('reports.busy-hours') ? 'active' : '' }}"
+               data-tooltip="Analisis Jam Sibuk">
+                <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span class="nav-label">Jam Sibuk</span>
+            </a>
+
             <a href="{{ route('pos.history') }}"
                class="nav-item {{ request()->routeIs('pos.history') ? 'active' : '' }}"
                data-tooltip="Riwayat Transaksi">
