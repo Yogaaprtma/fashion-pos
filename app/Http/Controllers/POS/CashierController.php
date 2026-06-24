@@ -139,6 +139,8 @@ class CashierController extends Controller
                     'image_url' => $product->image_url,
                     'variants' => $product->variants->map(fn($v) => [
                         'id' => $v->id,
+                        'product_id' => $product->id,
+                        'category_id' => $product->category_id,
                         'size' => $v->size,
                         'color' => $v->color,
                         'color_hex' => $v->color_hex,
@@ -179,6 +181,8 @@ class CashierController extends Controller
 
         return response()->json([
             'id' => $variant->id,
+            'product_id' => $variant->product_id,
+            'category_id' => $variant->product->category_id,
             'product_name' => $variant->product->name,
             'variant_label' => $variant->variant_label,
             'sell_price' => $variant->effective_sell_price,
