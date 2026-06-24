@@ -10,6 +10,8 @@ use App\Http\Controllers\Report\ReportController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Inventory\PromotionController;
+use App\Http\Controllers\POS\QrisController;
 
 // ============================================================
 // AUTH ROUTES
@@ -75,6 +77,11 @@ Route::middleware('auth')->group(function () {
         Route::post('/transaction/{transaction}/hold', [TransactionController::class, 'hold'])->name('transaction.hold');
         Route::post('/transaction/{transaction}/recall', [TransactionController::class, 'recall'])->name('transaction.recall');
         Route::get('/held', [TransactionController::class, 'heldList'])->name('held');
+        Route::post('/coupon/check', [PromotionController::class, 'checkCoupon'])->name('coupon.check');
+
+        // QRIS Dinamis
+        Route::post('/qris/generate', [QrisController::class, 'generate'])->name('qris.generate');
+        Route::get('/qris/check/{orderId}', [QrisController::class, 'check'])->name('qris.check');
     });
 
     // ============================================================
@@ -103,6 +110,9 @@ Route::middleware('auth')->group(function () {
         Route::post('/opname', [\App\Http\Controllers\Inventory\StockOpnameController::class, 'store'])->middleware('permission:inventory.opname')->name('opname.store');
         Route::get('/opname/{opname}', [\App\Http\Controllers\Inventory\StockOpnameController::class, 'show'])->name('opname.show');
         Route::post('/opname/{opname}/approve', [\App\Http\Controllers\Inventory\StockOpnameController::class, 'approve'])->middleware('permission:inventory.opname')->name('opname.approve');
+
+        // Promotions & Vouchers
+        Route::resource('promotions', PromotionController::class);
     });
 
     // ============================================================
