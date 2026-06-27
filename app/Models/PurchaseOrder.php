@@ -7,13 +7,23 @@ use Illuminate\Database\Eloquent\Model;
 class PurchaseOrder extends Model
 {
     protected $fillable = [
-        'po_number', 'supplier_id', 'total_amount', 'status',
-        'ordered_by', 'notes', 'expected_date',
+        'po_number',
+        'supplier_id',
+        'total_amount',
+        'status',
+        'ordered_by',
+        'notes',
+        'expected_date',
+        'payment_status',
+        'remaining_debt',
+        'due_date',
     ];
 
     protected $casts = [
         'total_amount' => 'decimal:2',
         'expected_date' => 'date',
+        'remaining_debt' => 'decimal:2',
+        'due_date' => 'date',
     ];
 
     public function supplier()
@@ -38,7 +48,7 @@ class PurchaseOrder extends Model
 
     public function getStatusColorAttribute(): string
     {
-        return match($this->status) {
+        return match ($this->status) {
             'draft' => 'gray',
             'sent' => 'sky',
             'partial' => 'amber',
