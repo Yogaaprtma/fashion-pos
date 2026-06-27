@@ -145,7 +145,12 @@ class PurchaseOrderController extends Controller
             }
         }
 
-        $order->update(['status' => $allReceived ? 'received' : 'partial']);
+        $order->update([
+            'status' => $allReceived ? 'received' : 'partial',
+            'payment_status' => 'unpaid',
+            'remaining_debt' => $order->total_amount,
+            'due_date' => now()->addDays(30),
+        ]);
 
         return redirect()->route('purchase.orders.show', $order)->with('success', 'Barang berhasil diterima & stok diperbarui.');
     }
