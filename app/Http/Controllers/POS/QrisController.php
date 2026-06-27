@@ -11,7 +11,11 @@ class QrisController extends Controller
 {
     private function getHeaders()
     {
-        $serverKey = env('MIDTRANS_SERVER_KEY', StoreSetting::get('midtrans_server_key', 'SB-Mid-server-yUt4Z86n3hVbS-2qT83m-w98'));
+        $serverKey = env('MIDTRANS_SERVER_KEY', StoreSetting::get('midtrans_server_key'));
+        if (!$serverKey) {
+            // Throw exception or return fallback handled by env
+            $serverKey = 'PLACEHOLDER_KEY_PLEASE_SET_IN_ENV';
+        }
         $auth = base64_encode($serverKey . ':');
         return [
             'Accept' => 'application/json',
