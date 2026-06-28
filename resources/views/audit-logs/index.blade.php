@@ -4,11 +4,12 @@
 @section('page-title', 'Log Aktivitas Sistem (Audit Log)')
 
 @section('content')
-<div class="card mb-4" style="background:var(--bg-elevated); border:none;">
-    <div class="card-body">
-        <p style="margin:0; font-size:13px; color:var(--text-muted)">
-            Menampilkan catatan aktivitas user dan sistem secara berurutan. Sangat berguna untuk melacak perubahan data, aktivitas login, kasir, dan inventori untuk keperluan audit keamanan.
-        </p>
+
+<!-- Page Header -->
+<div class="page-header">
+    <div class="page-header-info">
+        <h1 class="page-header-title">Log Aktivitas Sistem (Audit Log)</h1>
+        <p class="page-header-subtitle">Catatan aktivitas user dan sistem. Berguna untuk melacak perubahan data, aktivitas login, dan keamanan.</p>
     </div>
 </div>
 
