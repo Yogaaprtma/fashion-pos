@@ -5,11 +5,20 @@
 
 @section('content')
 
-<div class="card mb-4">
-    <div class="card-header flex-between">
-        <div class="card-title">Riwayat Opname</div>
-        <button class="btn btn-primary" onclick="document.getElementById('addOpnameModal').style.display='flex'">+ Mulai Opname Baru</button>
+<!-- Page Header -->
+<div class="page-header">
+    <div class="page-header-info">
+        <h1 class="page-header-title">Stock Opname</h1>
+        <p class="page-header-subtitle">Lakukan penyesuaian dan pengecekan fisik stok secara berkala.</p>
     </div>
+    <div class="page-header-actions">
+        <button class="btn btn-primary" onclick="document.getElementById('addOpnameModal').style.display='flex'">
+            + Mulai Opname Baru
+        </button>
+    </div>
+</div>
+
+<div class="card mb-4">
     <div class="card-body" style="padding:0">
         <table class="table">
             <thead>
