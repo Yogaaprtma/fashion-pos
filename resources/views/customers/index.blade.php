@@ -3,9 +3,18 @@
 @section('title', 'Manajemen Pelanggan (CRM)')
 
 @section('content')
-<div class="flex-between" style="margin-bottom: 24px;">
-    <h1 class="page-title">👥 Pelanggan & Member</h1>
-    <button class="btn btn-primary" onclick="openCustomerModal()">+ Tambah Pelanggan</button>
+
+<!-- Page Header -->
+<div class="page-header">
+    <div class="page-header-info">
+        <h1 class="page-header-title">Pelanggan & Member</h1>
+        <p class="page-header-subtitle">Kelola data pelanggan, member loyal, dan pantau riwayat belanja.</p>
+    </div>
+    <div class="page-header-actions">
+        <button class="btn btn-primary" onclick="openCustomerModal()">
+            + Tambah Pelanggan
+        </button>
+    </div>
 </div>
 
 <div class="card p-0">
@@ -28,12 +37,12 @@
                 <td>{{ $c->phone ?? '-' }}</td>
                 <td>{{ $c->email ?? '-' }}</td>
                 <td>Rp {{ number_format($c->total_spent, 0, ',', '.') }}</td>
-                <td><span class="badge" style="background:#FDE68A;color:#92400E;">{{ $c->points }} pts</span></td>
+                <td><span class="badge badge-warning">{{ $c->points }} pts</span></td>
                 <td>
                     @if($c->is_member)
-                        <span class="badge" style="background:#D1FAE5;color:#065F46;">Aktif</span>
+                        <span class="badge badge-success">Aktif</span>
                     @else
-                        <span class="badge" style="background:#F3F4F6;color:#4B5563;">Bukan Member</span>
+                        <span class="badge badge-secondary">Bukan Member</span>
                     @endif
                 </td>
                 <td class="text-center">
