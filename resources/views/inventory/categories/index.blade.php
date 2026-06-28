@@ -5,7 +5,15 @@
 
 @section('content')
 
-<div class="grid" style="grid-template-columns: 1fr 300px; gap: 20px;">
+<!-- Page Header -->
+<div class="page-header">
+    <div class="page-header-info">
+        <h1 class="page-header-title">Kategori Produk</h1>
+        <p class="page-header-subtitle">Kelola kategori dan sub-kategori untuk mengorganisir produk Anda.</p>
+    </div>
+</div>
+
+<div class="grid" style="grid-template-columns: 1fr 320px; gap: 20px;">
     <!-- Kategori List -->
     <div class="card">
         <div class="card-header">
