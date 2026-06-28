@@ -5,6 +5,19 @@
 
 @section('content')
 
+<!-- Page Header -->
+<div class="page-header">
+    <div class="page-header-info">
+        <h1 class="page-header-title">Manajemen Aset</h1>
+        <p class="page-header-subtitle">Kelola dan pantau seluruh aset serta inventaris fisik perusahaan.</p>
+    </div>
+    <div class="page-header-actions">
+        <a href="{{ route('assets.create') }}" class="btn btn-primary">
+            + Tambah Aset
+        </a>
+    </div>
+</div>
+
 <div class="grid grid-3 mb-4">
     <div class="stat-card primary">
         <div class="stat-label">Total Nilai Aset</div>
@@ -23,22 +36,26 @@
     </div>
 </div>
 
+<!-- Filter Bar -->
+<div class="filter-bar">
+    <form action="{{ route('assets.index') }}" method="GET" style="display:flex;gap:10px;width:100%">
+        <div class="search-input" style="flex:1; max-width:400px;">
+            <svg class="search-input-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            <input type="text" name="search" class="form-control" placeholder="Cari kode, nama aset..." value="{{ request('search') }}">
+        </div>
+        <select name="condition" class="form-control" style="width:200px">
+            <option value="">Semua Kondisi</option>
+            <option value="good" {{ request('condition') === 'good' ? 'selected' : '' }}>Baik</option>
+            <option value="fair" {{ request('condition') === 'fair' ? 'selected' : '' }}>Cukup</option>
+            <option value="poor" {{ request('condition') === 'poor' ? 'selected' : '' }}>Rusak</option>
+        </select>
+        <button type="submit" class="btn btn-secondary">Cari</button>
+    </form>
+</div>
+
 <div class="card">
-    <div class="card-header">
-        <form action="{{ route('assets.index') }}" method="GET" class="flex-between" style="width:100%">
-            <div style="display:flex;gap:10px">
-                <input type="text" name="search" class="form-control" placeholder="Cari aset..." value="{{ request('search') }}" style="width:250px">
-                <select name="condition" class="form-control">
-                    <option value="">Semua Kondisi</option>
-                    <option value="good" {{ request('condition') === 'good' ? 'selected' : '' }}>Baik</option>
-                    <option value="fair" {{ request('condition') === 'fair' ? 'selected' : '' }}>Cukup</option>
-                    <option value="poor" {{ request('condition') === 'poor' ? 'selected' : '' }}>Rusak</option>
-                </select>
-                <button type="submit" class="btn btn-secondary">Filter</button>
-            </div>
-            <a href="{{ route('assets.create') }}" class="btn btn-primary">+ Tambah Aset</a>
-        </form>
-    </div>
     <div class="card-body" style="padding:0">
         <table class="table">
             <thead>
