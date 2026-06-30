@@ -5,22 +5,34 @@
 
 @section('content')
 
-<div class="card mb-4">
-    <div class="card-header">
-        <form action="{{ route('purchase.orders.index') }}" method="GET" class="flex-between" style="width:100%">
-            <div style="display:flex;gap:10px">
-                <select name="status" class="form-control" style="width:200px" onchange="this.form.submit()">
-                    <option value="">Semua Status</option>
-                    <option value="draft" {{ request('status') === 'draft' ? 'selected' : '' }}>Draft</option>
-                    <option value="sent" {{ request('status') === 'sent' ? 'selected' : '' }}>Sent</option>
-                    <option value="partial" {{ request('status') === 'partial' ? 'selected' : '' }}>Partial (Diterima Sebagian)</option>
-                    <option value="received" {{ request('status') === 'received' ? 'selected' : '' }}>Received (Lengkap)</option>
-                    <option value="cancelled" {{ request('status') === 'cancelled' ? 'selected' : '' }}>Batal</option>
-                </select>
-            </div>
-            <a href="{{ route('purchase.orders.create') }}" class="btn btn-primary">+ Buat PO Baru</a>
-        </form>
+<!-- Page Header -->
+<div class="page-header">
+    <div class="page-header-info">
+        <h1 class="page-header-title">Purchase Order (PO)</h1>
+        <p class="page-header-subtitle">Kelola pesanan pembelian barang ke supplier.</p>
     </div>
+    <div class="page-header-actions">
+        <a href="{{ route('purchase.orders.create') }}" class="btn btn-primary">
+            + Buat PO Baru
+        </a>
+    </div>
+</div>
+
+<!-- Filter Bar -->
+<div class="filter-bar">
+    <form action="{{ route('purchase.orders.index') }}" method="GET" style="display:flex;gap:10px;width:100%">
+        <select name="status" class="form-control" style="width:250px" onchange="this.form.submit()">
+            <option value="">Semua Status</option>
+            <option value="draft" {{ request('status') === 'draft' ? 'selected' : '' }}>Draft</option>
+            <option value="sent" {{ request('status') === 'sent' ? 'selected' : '' }}>Sent</option>
+            <option value="partial" {{ request('status') === 'partial' ? 'selected' : '' }}>Partial (Diterima Sebagian)</option>
+            <option value="received" {{ request('status') === 'received' ? 'selected' : '' }}>Received (Lengkap)</option>
+            <option value="cancelled" {{ request('status') === 'cancelled' ? 'selected' : '' }}>Batal</option>
+        </select>
+    </form>
+</div>
+
+<div class="card mb-4">
     <div class="card-body" style="padding:0">
         <table class="table">
             <thead>
