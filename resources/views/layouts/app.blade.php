@@ -9,10 +9,34 @@
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- CSS -->
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+
+    <style>
+        /* Topbar gradient line */
+        .topbar::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(124,58,237,0.5) 30%, rgba(6,182,212,0.4) 70%, transparent);
+        }
+        /* Sidebar gradient accent top */
+        .sidebar-header::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+        }
+    </style>
 
     @stack('styles')
 </head>
@@ -31,7 +55,11 @@
         <!-- Logo Header -->
         <div class="sidebar-header">
             <a href="{{ route('dashboard') }}" class="sidebar-logo" title="FashionPOS">
-                <div class="sidebar-logo-icon">🏪</div>
+                <div class="sidebar-logo-icon">
+                    <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z"/>
+                    </svg>
+                </div>
                 <div style="min-width:0; overflow:hidden;">
                     <div class="sidebar-logo-text">FashionPOS</div>
                     <div class="sidebar-logo-sub">{{ \App\Models\StoreSetting::get('store_name', 'Swalayan Pakaian') }}</div>
@@ -314,11 +342,11 @@
     <div class="main-content" id="mainContent">
 
         <!-- TOPBAR -->
-        <header class="topbar">
+        <header class="topbar" style="position:sticky;">
             <div class="topbar-left">
                 <!-- Hamburger / Collapse Toggle -->
                 <button onclick="toggleSidebar()" class="btn-sidebar-toggle" id="sidebarToggleBtn" aria-label="Toggle sidebar">
-                    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <svg width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
                     </svg>
                 </button>
