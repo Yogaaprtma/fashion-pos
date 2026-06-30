@@ -5,36 +5,52 @@
 
 @section('content')
 
-<div class="card mb-4">
-    <div class="card-header">
-        <form action="{{ route('inventory.products.index') }}" method="GET" class="flex-between" style="width:100%">
-            <div style="display:flex;gap:10px">
-                <input type="text" name="search" class="form-control" placeholder="Cari nama, SKU, brand..." value="{{ request('search') }}" style="width:250px">
-                <select name="category_id" class="form-control" style="width:200px">
-                    <option value="">Semua Kategori</option>
-                    @foreach($categories as $cat)
-                        <option value="{{ $cat->id }}" {{ request('category_id') == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
-                    @endforeach
-                </select>
-                <select name="stock_status" class="form-control" style="width:150px">
-                    <option value="">Semua Stok</option>
-                    <option value="low" {{ request('stock_status') === 'low' ? 'selected' : '' }}>Stok Rendah</option>
-                    <option value="out" {{ request('stock_status') === 'out' ? 'selected' : '' }}>Habis</option>
-                </select>
-                <button type="submit" class="btn btn-secondary">Cari</button>
-                @if(request()->anyFilled(['search', 'category_id', 'stock_status']))
-                    <a href="{{ route('inventory.products.index') }}" class="btn btn-secondary" style="color:var(--color-danger)">Reset</a>
-                @endif
-            </div>
-            <div style="display:flex;gap:10px;">
-                <a href="{{ route('inventory.barcode-generator') }}" class="btn btn-secondary">
-                    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="margin-right:4px;"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" /></svg>
-                    Cetak Barcode
-                </a>
-                <a href="{{ route('inventory.products.create') }}" class="btn btn-primary">+ Tambah Produk</a>
-            </div>
-        </form>
+<!-- Page Header -->
+<div class="page-header">
+    <div class="page-header-info">
+        <h1 class="page-header-title">Katalog Produk</h1>
+        <p class="page-header-subtitle">Kelola master data produk, harga, dan stok keseluruhan.</p>
     </div>
+    <div class="page-header-actions">
+        <a href="{{ route('inventory.barcode-generator') }}" class="btn btn-secondary">
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" /></svg>
+            Cetak Barcode
+        </a>
+        <a href="{{ route('inventory.products.create') }}" class="btn btn-primary">
+            + Tambah Produk
+        </a>
+    </div>
+</div>
+
+<!-- Filter Bar -->
+<div class="filter-bar">
+    <form action="{{ route('inventory.products.index') }}" method="GET" style="display:flex; gap:10px; flex-wrap:wrap; width:100%">
+        <div class="search-input" style="flex:1; min-width:200px;">
+            <svg class="search-input-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            <input type="text" name="search" class="form-control" placeholder="Cari nama, SKU, brand..." value="{{ request('search') }}">
+        </div>
+        <select name="category_id" class="form-control" style="width:200px">
+            <option value="">Semua Kategori</option>
+            @foreach($categories as $cat)
+                <option value="{{ $cat->id }}" {{ request('category_id') == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
+            @endforeach
+        </select>
+        <select name="stock_status" class="form-control" style="width:150px">
+            <option value="">Semua Stok</option>
+            <option value="low" {{ request('stock_status') === 'low' ? 'selected' : '' }}>Stok Rendah</option>
+            <option value="out" {{ request('stock_status') === 'out' ? 'selected' : '' }}>Habis</option>
+        </select>
+        <button type="submit" class="btn btn-secondary">Cari</button>
+        @if(request()->anyFilled(['search', 'category_id', 'stock_status']))
+            <a href="{{ route('inventory.products.index') }}" class="btn btn-ghost" style="color:var(--color-danger-text)">Reset</a>
+        @endif
+    </form>
+</div>
+
+<!-- Main Table Card -->
+<div class="card mb-4">
     <div class="card-body" style="padding:0">
         <table class="table">
             <thead>
