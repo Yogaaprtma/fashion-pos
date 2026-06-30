@@ -5,6 +5,14 @@
 
 @section('content')
 
+<!-- Page Header -->
+<div class="page-header">
+    <div class="page-header-info">
+        <h1 class="page-header-title">Stok & Inventori</h1>
+        <p class="page-header-subtitle">Pantau nilai inventori, ketersediaan stok, dan riwayat pergerakan barang.</p>
+    </div>
+</div>
+
 <div class="grid grid-3 mb-4">
     <div class="stat-card primary">
         <div class="stat-label">Total Nilai Inventori</div>
@@ -21,13 +29,20 @@
     </div>
 </div>
 
+<!-- Filter Bar -->
+<div class="filter-bar">
+    <form action="{{ route('inventory.stock.index') }}" method="GET" style="display:flex;gap:10px;width:100%">
+        <div class="search-input" style="flex:1; max-width:400px;">
+            <svg class="search-input-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            <input type="text" name="search" class="form-control" placeholder="Cari nama, SKU..." value="{{ request('search') }}">
+        </div>
+        <button type="submit" class="btn btn-secondary">Cari</button>
+    </form>
+</div>
+
 <div class="card">
-    <div class="card-header">
-        <form action="{{ route('inventory.stock.index') }}" method="GET" style="display:flex;gap:10px;width:100%">
-            <input type="text" name="search" class="form-control" placeholder="Cari nama, SKU..." value="{{ request('search') }}" style="width:250px">
-            <button type="submit" class="btn btn-secondary">Cari</button>
-        </form>
-    </div>
     <div class="card-body" style="padding:0">
         <table class="table">
             <thead>
