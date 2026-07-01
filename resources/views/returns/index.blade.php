@@ -5,22 +5,30 @@
 
 @section('content')
 
-<div class="card mb-4">
-    <div class="card-header">
-        <div style="display:flex;gap:10px;align-items:center;">
-            <form method="GET" action="{{ route('returns.index') }}" style="display:flex;gap:10px;">
-                <select name="status" class="form-control" style="width:160px;" onchange="this.form.submit()">
-                    <option value="">Semua Status</option>
-                    <option value="pending"  {{ request('status')=='pending'  ? 'selected':'' }}>⏳ Menunggu</option>
-                    <option value="approved" {{ request('status')=='approved' ? 'selected':'' }}>✅ Disetujui</option>
-                    <option value="rejected" {{ request('status')=='rejected' ? 'selected':'' }}>❌ Ditolak</option>
-                </select>
-            </form>
-        </div>
-        <div style="font-size:13px;color:var(--text-muted);">
-            Total: <strong>{{ $returns->total() }}</strong> retur
-        </div>
+<!-- Page Header -->
+<div class="page-header">
+    <div class="page-header-info">
+        <h1 class="page-header-title">Manajemen Retur Barang</h1>
+        <p class="page-header-subtitle">Pantau dan kelola pengajuan pengembalian barang dari pelanggan.</p>
     </div>
+</div>
+
+<!-- Filter Bar -->
+<div class="filter-bar flex-between" style="align-items:center;">
+    <form method="GET" action="{{ route('returns.index') }}" style="display:flex;gap:10px;">
+        <select name="status" class="form-control" style="width:180px;" onchange="this.form.submit()">
+            <option value="">Semua Status</option>
+            <option value="pending"  {{ request('status')=='pending'  ? 'selected':'' }}>⏳ Menunggu</option>
+            <option value="approved" {{ request('status')=='approved' ? 'selected':'' }}>✅ Disetujui</option>
+            <option value="rejected" {{ request('status')=='rejected' ? 'selected':'' }}>❌ Ditolak</option>
+        </select>
+    </form>
+    <div style="font-size:13px;color:var(--text-muted);font-weight:600;">
+        Total: <span class="badge badge-secondary">{{ $returns->total() }} retur</span>
+    </div>
+</div>
+
+<div class="card mb-4">
     <div class="card-body" style="padding:0;">
         <table class="table">
             <thead>
