@@ -5,33 +5,40 @@
 
 @section('content')
 
-<!-- Filter Laporan -->
-<div class="card mb-4">
-    <div class="card-body" style="padding:16px">
-        <form action="{{ route('reports.sales') }}" method="GET" style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap">
-            <div class="form-group" style="margin:0;flex:1;min-width:150px">
-                <label class="form-label" style="font-size:11px">Tanggal Mulai</label>
-                <input type="date" name="start_date" class="form-control" value="{{ request('start_date', $startDate) }}">
-            </div>
-            <div class="form-group" style="margin:0;flex:1;min-width:150px">
-                <label class="form-label" style="font-size:11px">Tanggal Akhir</label>
-                <input type="date" name="end_date" class="form-control" value="{{ request('end_date', $endDate) }}">
-            </div>
-            <div class="form-group" style="margin:0;flex:1;min-width:150px">
-                <label class="form-label" style="font-size:11px">Status</label>
-                <select name="status" class="form-control">
-                    <option value="completed" {{ request('status') === 'completed' ? 'selected' : '' }}>Selesai</option>
-                    <option value="all" {{ request('status') === 'all' ? 'selected' : '' }}>Semua Status</option>
-                </select>
-            </div>
-            <div style="display:flex;gap:8px">
-                <button type="submit" class="btn btn-primary">Filter</button>
-                <a href="{{ route('reports.sales.export-pdf', request()->all()) }}" target="_blank" class="btn btn-secondary" style="color:var(--color-danger)">
-                    📄 Cetak PDF
-                </a>
-            </div>
-        </form>
+<!-- Page Header -->
+<div class="page-header">
+    <div class="page-header-info">
+        <h1 class="page-header-title">Laporan Penjualan</h1>
+        <p class="page-header-subtitle">Analisis data penjualan, produk terlaris, dan ringkasan pendapatan.</p>
     </div>
+</div>
+
+<!-- Filter Laporan -->
+<div class="filter-bar">
+    <form action="{{ route('reports.sales') }}" method="GET" style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;width:100%">
+        <div class="form-group" style="margin:0;flex:1;min-width:150px">
+            <label class="form-label" style="font-size:11px">Tanggal Mulai</label>
+            <input type="date" name="start_date" class="form-control" value="{{ request('start_date', $startDate) }}">
+        </div>
+        <div class="form-group" style="margin:0;flex:1;min-width:150px">
+            <label class="form-label" style="font-size:11px">Tanggal Akhir</label>
+            <input type="date" name="end_date" class="form-control" value="{{ request('end_date', $endDate) }}">
+        </div>
+        <div class="form-group" style="margin:0;flex:1;min-width:150px">
+            <label class="form-label" style="font-size:11px">Status</label>
+            <select name="status" class="form-control">
+                <option value="completed" {{ request('status') === 'completed' ? 'selected' : '' }}>Selesai</option>
+                <option value="all" {{ request('status') === 'all' ? 'selected' : '' }}>Semua Status</option>
+            </select>
+        </div>
+        <div style="display:flex;gap:8px">
+            <button type="submit" class="btn btn-primary">Filter</button>
+            <a href="{{ route('reports.sales.export-pdf', request()->all()) }}" target="_blank" class="btn btn-secondary" style="color:var(--color-danger)">
+                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                Cetak PDF
+            </a>
+        </div>
+    </form>
 </div>
 
 <!-- Ringkasan -->
