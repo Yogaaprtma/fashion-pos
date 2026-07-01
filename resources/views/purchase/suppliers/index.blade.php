@@ -5,13 +5,33 @@
 
 @section('content')
 
-<div class="card">
-    <div class="card-header">
-        <form action="{{ route('purchase.suppliers.index') }}" method="GET" class="flex-between" style="width:100%">
-            <input type="text" name="search" class="form-control" placeholder="Cari supplier..." value="{{ request('search') }}" style="width:300px">
-            <button type="button" class="btn btn-primary" onclick="document.getElementById('addSupplierModal').style.display='flex'">+ Tambah Supplier</button>
-        </form>
+<!-- Page Header -->
+<div class="page-header">
+    <div class="page-header-info">
+        <h1 class="page-header-title">Daftar Supplier</h1>
+        <p class="page-header-subtitle">Kelola daftar pemasok/vendor untuk kebutuhan stok barang.</p>
     </div>
+    <div class="page-header-actions">
+        <button class="btn btn-primary" onclick="document.getElementById('addSupplierModal').style.display='flex'">
+            + Tambah Supplier
+        </button>
+    </div>
+</div>
+
+<!-- Filter Bar -->
+<div class="filter-bar">
+    <form action="{{ route('purchase.suppliers.index') }}" method="GET" style="display:flex; gap:10px; width:100%;">
+        <div class="search-input" style="flex:1; max-width:400px;">
+            <svg class="search-input-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            <input type="text" name="search" class="form-control" placeholder="Cari nama supplier, kontak..." value="{{ request('search') }}">
+        </div>
+        <button type="submit" class="btn btn-secondary">Cari</button>
+    </form>
+</div>
+
+<div class="card">
     <div class="card-body" style="padding:0">
         <table class="table">
             <thead>
