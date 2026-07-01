@@ -5,6 +5,14 @@
 
 @section('content')
 
+<!-- Page Header -->
+<div class="page-header">
+    <div class="page-header-info">
+        <h1 class="page-header-title">Pengaturan Sistem & Toko</h1>
+        <p class="page-header-subtitle">Konfigurasi profil bisnis, pajak, struk, dan preferensi lainnya.</p>
+    </div>
+</div>
+
 <div class="grid" style="grid-template-columns: 250px 1fr; gap: 24px; align-items: start;">
     
     <!-- Sidebar Settings -->
