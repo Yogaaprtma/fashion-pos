@@ -20,6 +20,7 @@ class PaymentMethodSeeder extends Seeder
             ['name' => 'Dana', 'type' => 'ewallet', 'icon' => 'device-mobile', 'is_active' => true],
             ['name' => 'Transfer Bank', 'type' => 'transfer', 'icon' => 'bank', 'is_active' => true],
             ['name' => 'Kartu Kredit', 'type' => 'credit', 'icon' => 'credit-card', 'is_active' => true],
+            ['name' => 'Tempo / Kasbon', 'type' => 'tempo', 'icon' => 'calendar', 'is_active' => true],
         ];
 
         foreach ($methods as $method) {
