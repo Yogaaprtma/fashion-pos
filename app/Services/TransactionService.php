@@ -47,7 +47,29 @@ class TransactionService
 
             $grandTotal = $afterDiscount + $taxAmount;
             $paidAmount = collect($data['payments'])->sum('amount');
-            $changeAmount = max(0, $paidAmount - $grandTotal);
+            
+            $hasTempo = false;
+            foreach ($data['payments'] as $payment) {
+                $pm = \App\Models\PaymentMethod::find($payment['payment_method_id']);
+                if ($pm && $pm->type === 'tempo') {
+                    $hasTempo = true;
+                }
+            }
+
+            if ($hasTempo) {
+                if (empty($data['customer_id'])) {
+                    throw new \Exception('Metode pembayaran Tempo/Kasbon memerlukan pelanggan (member) yang terdaftar!');
+                }
+                $changeAmount = 0;
+                $remainingDebt = max(0, $grandTotal - $paidAmount);
+                $paymentStatus = $paidAmount > 0 ? 'partial' : 'unpaid';
+                $dueDate = now()->addDays(30); // Default 30 days
+            } else {
+                $changeAmount = max(0, $paidAmount - $grandTotal);
+                $remainingDebt = 0;
+                $paymentStatus = 'paid';
+                $dueDate = null;
+            }
 
             // Create transaction
             $transaction = Transaction::create([
@@ -68,6 +90,9 @@ class TransactionService
                 'paid_amount' => $paidAmount,
                 'change_amount' => $changeAmount,
                 'status' => 'completed',
+                'payment_status' => $paymentStatus,
+                'remaining_debt' => $remainingDebt,
+                'due_date' => $dueDate,
                 'notes' => $data['notes'] ?? null,
             ]);
 
@@ -90,6 +115,15 @@ class TransactionService
                 ]);
 
                 // Deduct stock
+                $branchId = $session->branch_id;
+                if ($branchId) {
+                    $branchStock = \App\Models\BranchProductStock::firstOrCreate(
+                        ['branch_id' => $branchId, 'product_variant_id' => $variant->id],
+                        ['stock_qty' => $variant->stock_qty]
+                    );
+                    $branchStock->decrement('stock_qty', $item['quantity']);
+                }
+
                 $stockBefore = $variant->stock_qty;
                 $variant->decrement('stock_qty', $item['quantity']);
                 $variant->refresh();
