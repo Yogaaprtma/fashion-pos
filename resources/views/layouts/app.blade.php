@@ -145,6 +145,15 @@
                 </svg>
                 <span class="nav-label">Promosi & Voucher</span>
             </a>
+
+            <a href="{{ route('inventory.transfers.index') }}"
+               class="nav-item {{ request()->routeIs('inventory.transfers.*') ? 'active' : '' }}"
+               data-tooltip="Mutasi Stok">
+                <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+                </svg>
+                <span class="nav-label">Mutasi Stok</span>
+            </a>
             @endif
 
             <!-- PELANGGAN / CRM -->
@@ -152,12 +161,21 @@
             <div class="nav-group-label">Pelanggan (CRM)</div>
 
             <a href="{{ route('customers.index') }}"
-               class="nav-item {{ request()->routeIs('customers.*') ? 'active' : '' }}"
+               class="nav-item {{ request()->routeIs('customers.index') ? 'active' : '' }}"
                data-tooltip="Data Pelanggan">
                 <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
                 </svg>
                 <span class="nav-label">Data Pelanggan</span>
+            </a>
+
+            <a href="{{ route('customers.debts.customers.index') }}"
+               class="nav-item {{ request()->routeIs('customers.debts.customers.*') ? 'active' : '' }}"
+               data-tooltip="Piutang & Kasbon">
+                <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span class="nav-label">Piutang & Kasbon</span>
             </a>
             @endif
 
@@ -175,12 +193,21 @@
             </a>
 
             <a href="{{ route('purchase.orders.index') }}"
-               class="nav-item {{ request()->routeIs('purchase.orders.*') ? 'active' : '' }}"
+               class="nav-item {{ request()->routeIs('purchase.orders.index') || request()->routeIs('purchase.orders.create') || request()->routeIs('purchase.orders.edit') || request()->routeIs('purchase.orders.show') ? 'active' : '' }}"
                data-tooltip="Purchase Order">
                 <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                 </svg>
                 <span class="nav-label">Purchase Order</span>
+            </a>
+
+            <a href="{{ route('purchase.debts.suppliers.index') }}"
+               class="nav-item {{ request()->routeIs('purchase.debts.suppliers.*') ? 'active' : '' }}"
+               data-tooltip="Hutang Supplier">
+                <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span class="nav-label">Hutang Supplier</span>
             </a>
             @endif
 
@@ -328,8 +355,17 @@
             </a>
 
             @if(auth()->user()->canAccess('setting.manage'))
+            <a href="{{ route('settings.branches.index') }}"
+               class="nav-item {{ request()->routeIs('settings.branches.*') ? 'active' : '' }}"
+               data-tooltip="Cabang & Outlet">
+                <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                </svg>
+                <span class="nav-label">Cabang & Outlet</span>
+            </a>
+
             <a href="{{ route('settings.index') }}"
-               class="nav-item {{ request()->routeIs('settings.*') ? 'active' : '' }}"
+               class="nav-item {{ request()->routeIs('settings.index') ? 'active' : '' }}"
                data-tooltip="Pengaturan">
                 <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
