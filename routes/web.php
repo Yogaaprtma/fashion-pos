@@ -113,6 +113,9 @@ Route::middleware('auth')->group(function () {
 
         // Promotions & Vouchers
         Route::resource('promotions', PromotionController::class);
+
+        // Stock Transfers (Mutasi Stok)
+        Route::resource('transfers', \App\Http\Controllers\Inventory\StockTransferController::class);
     });
 
     // ============================================================
@@ -122,6 +125,10 @@ Route::middleware('auth')->group(function () {
         Route::resource('suppliers', \App\Http\Controllers\Purchase\SupplierController::class);
         Route::resource('orders', \App\Http\Controllers\Purchase\PurchaseOrderController::class);
         Route::post('/orders/{order}/receive', [\App\Http\Controllers\Purchase\PurchaseOrderController::class, 'receive'])->name('orders.receive');
+
+        // Supplier Debts (Hutang Supplier)
+        Route::get('/supplier-debts', [\App\Http\Controllers\POS\DebtController::class, 'suppliersIndex'])->name('debts.suppliers.index');
+        Route::post('/supplier-debts/{purchaseOrder}/pay', [\App\Http\Controllers\POS\DebtController::class, 'paySupplierDebt'])->name('debts.suppliers.pay');
     });
 
     // ============================================================
@@ -166,6 +173,10 @@ Route::middleware('auth')->group(function () {
     Route::prefix('customers')->name('customers.')->middleware('permission:customer.manage')->group(function () {
         Route::get('/search', [\App\Http\Controllers\CustomerController::class, 'search'])->name('search');
         Route::resource('/', \App\Http\Controllers\CustomerController::class)->parameters(['' => 'customer']);
+
+        // Customer Debts (Piutang / Kasbon)
+        Route::get('/debts', [\App\Http\Controllers\POS\DebtController::class, 'customersIndex'])->name('debts.customers.index');
+        Route::post('/debts/{transaction}/pay', [\App\Http\Controllers\POS\DebtController::class, 'payCustomerDebt'])->name('debts.customers.pay');
     });
 
     // ============================================================
@@ -183,6 +194,9 @@ Route::middleware('auth')->group(function () {
         Route::put('/receipt', [SettingController::class, 'updateReceipt'])->name('receipt');
         Route::put('/payment-methods', [SettingController::class, 'updatePaymentMethods'])->name('payment-methods');
         Route::post('/backup', [SettingController::class, 'backup'])->name('backup');
+        
+        // Branches
+        Route::resource('branches', \App\Http\Controllers\Setting\BranchController::class)->except(['show']);
     });
 
     // ============================================================
