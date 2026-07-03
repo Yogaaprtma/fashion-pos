@@ -1020,15 +1020,28 @@
 
             const isCash = btn.dataset.type === 'cash';
             const isQris = btn.dataset.type === 'qris';
+            const isTempo = btn.dataset.type === 'tempo';
 
-            document.getElementById('cashSection').style.display = isCash ? 'block' : 'none';
+            document.getElementById('cashSection').style.display = (isCash || isTempo) ? 'block' : 'none';
             document.getElementById('qrisSection').style.display = isQris ? 'block' : 'none';
-            document.getElementById('referenceSection').style.display = (!isCash && !isQris) ? 'block' : 'none';
+            document.getElementById('referenceSection').style.display = (!isCash && !isQris && !isTempo) ? 'block' : 'none';
+
+            // Change cash label if it's downpayment for tempo
+            const labelCash = document.querySelector('#cashSection label');
+            if (labelCash) {
+                labelCash.textContent = isTempo ? 'Uang Muka / Down Payment (Rp)' : 'Uang Diterima (Rp) *';
+            }
 
             resetQrisSection();
 
             if (isQris) {
                 document.getElementById('processPayBtn').disabled = true;
+            } else if (isTempo) {
+                const customerId = document.getElementById('selectedCustomerId').value || null;
+                if (!customerId) {
+                    showToast('Pembayaran Tempo/Kasbon wajib memilih pelanggan terlebih dahulu!', 'error');
+                }
+                calculateChange();
             } else if (!isCash) {
                 document.getElementById('processPayBtn').disabled = false;
             } else {
@@ -1039,11 +1052,21 @@
         function calculateChange() {
             const total = getGrandTotal();
             const paid = parseFloat(document.getElementById('cashInput').value) || 0;
-            const change = paid - total;
-            document.getElementById('changeAmount').textContent = change >= 0 ? formatCurrency(change) : `Kurang ${formatCurrency(-change)}`;
-            document.getElementById('changeDisplay').style.display = 'block';
-            document.getElementById('changeAmount').style.color = change >= 0 ? '#34D399' : '#FB7185';
-            document.getElementById('processPayBtn').disabled = change < 0 || !selectedPaymentMethod;
+
+            if (selectedPaymentMethod && selectedPaymentMethod.type === 'tempo') {
+                const customerId = document.getElementById('selectedCustomerId').value || null;
+                const debt = Math.max(0, total - paid);
+                document.getElementById('changeAmount').textContent = `Kasbon: ${formatCurrency(debt)}`;
+                document.getElementById('changeDisplay').style.display = 'block';
+                document.getElementById('changeAmount').style.color = '#FB7185';
+                document.getElementById('processPayBtn').disabled = !customerId;
+            } else {
+                const change = paid - total;
+                document.getElementById('changeAmount').textContent = change >= 0 ? formatCurrency(change) : `Kurang ${formatCurrency(-change)}`;
+                document.getElementById('changeDisplay').style.display = 'block';
+                document.getElementById('changeAmount').style.color = change >= 0 ? '#34D399' : '#FB7185';
+                document.getElementById('processPayBtn').disabled = change < 0 || !selectedPaymentMethod;
+            }
         }
 
         async function processPayment() {
@@ -1057,8 +1080,17 @@
 
             if (paymentMode === 'single') {
                 const isCash = selectedPaymentMethod?.type === 'cash';
-                const paid = isCash ? parseFloat(document.getElementById('cashInput').value) : total;
+                const isTempo = selectedPaymentMethod?.type === 'tempo';
+                const isCashOrTempo = isCash || isTempo;
+
+                const paid = isCashOrTempo ? parseFloat(document.getElementById('cashInput').value) : total;
                 change = isCash ? paid - total : 0;
+
+                if (isTempo && !customerId) {
+                    showToast('Pembayaran Tempo/Kasbon wajib memilih pelanggan terlebih dahulu!', 'error');
+                    return;
+                }
+
                 const refNum = document.getElementById('referenceInput')?.value || null;
                 payments = [{
                     payment_method_id: selectedPaymentMethod.id,
@@ -1248,7 +1280,7 @@
         let currentQrisOrderId = null;
 
         function resetQrisSection() {
-            if(qrisPollInterval) {
+            if (qrisPollInterval) {
                 clearInterval(qrisPollInterval);
                 qrisPollInterval = null;
             }
@@ -1268,8 +1300,13 @@
             try {
                 const resp = await fetch('/pos/qris/generate', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF },
-                    body: JSON.stringify({ amount: total }),
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': CSRF
+                    },
+                    body: JSON.stringify({
+                        amount: total
+                    }),
                 });
                 const data = await resp.json();
                 if (data.success) {
@@ -1279,14 +1316,14 @@
                     document.getElementById('qrisStatusText').textContent = 'Menunggu pembayaran...';
                     document.getElementById('qrisStatusText').style.color = 'var(--text-primary)';
                     genBtn.style.display = 'none';
-                    
+
                     startQrisStatusPolling(data.order_id);
                 } else {
                     showToast(data.message || 'Gagal membuat QRIS.', 'error');
                     genBtn.disabled = false;
                     genBtn.textContent = '⚡ Generate QRIS QR';
                 }
-            } catch(e) {
+            } catch (e) {
                 showToast('Koneksi internet bermasalah.', 'error');
                 genBtn.disabled = false;
                 genBtn.textContent = '⚡ Generate QRIS QR';
@@ -1294,8 +1331,8 @@
         }
 
         function startQrisStatusPolling(orderId) {
-            if(qrisPollInterval) clearInterval(qrisPollInterval);
-            
+            if (qrisPollInterval) clearInterval(qrisPollInterval);
+
             qrisPollInterval = setInterval(async () => {
                 if (currentQrisOrderId !== orderId) {
                     clearInterval(qrisPollInterval);
@@ -1304,23 +1341,25 @@
 
                 try {
                     const resp = await fetch(`/pos/qris/check/${orderId}`, {
-                        headers: { 'X-CSRF-TOKEN': CSRF }
+                        headers: {
+                            'X-CSRF-TOKEN': CSRF
+                        }
                     });
                     const data = await resp.json();
-                    
+
                     if (data.success) {
                         if (data.settled) {
                             clearInterval(qrisPollInterval);
                             document.getElementById('qrisStatusText').textContent = '✓ Pembayaran Lunas!';
                             document.getElementById('qrisStatusText').style.color = '#34D399';
-                            
+
                             if (document.getElementById('referenceInput')) {
                                 document.getElementById('referenceInput').value = orderId;
                             }
-                            
+
                             document.getElementById('processPayBtn').disabled = false;
                             showToast('QRIS Lunas! Menyelesaikan transaksi...', 'success');
-                            
+
                             setTimeout(() => {
                                 processPayment();
                             }, 1000);
@@ -1328,7 +1367,7 @@
                             document.getElementById('qrisStatusText').textContent = data.message;
                         }
                     }
-                } catch(e) {
+                } catch (e) {
                     console.error('Error checking QRIS status:', e);
                 }
             }, 3000);
