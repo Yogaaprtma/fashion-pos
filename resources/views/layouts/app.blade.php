@@ -10,10 +10,10 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;family=Outfit:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet">
 
     <!-- CSS -->
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}?v=3.1.0">
 
     <style>
         /* Topbar gradient line */
@@ -24,7 +24,7 @@
             left: 0;
             right: 0;
             height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(124,58,237,0.5) 30%, rgba(6,182,212,0.4) 70%, transparent);
+            background: linear-gradient(90deg, transparent, rgba(79,70,229,0.28) 30%, rgba(59,130,246,0.24) 70%, transparent);
         }
         /* Sidebar gradient accent top */
         .sidebar-header::after {
@@ -34,7 +34,7 @@
             left: 0;
             right: 0;
             height: 2px;
-            background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+            background: linear-gradient(90deg, #4F46E5, #3B82F6);
         }
     </style>
 
