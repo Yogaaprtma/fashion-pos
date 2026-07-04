@@ -3,241 +3,1243 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f7f9fc">
     <title>Masuk — FashionPOS</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
     <style>
-        .auth-container {
+        :root {
+            --ink: #17213c;
+            --ink-soft: #65708a;
+            --ink-muted: #98a1b5;
+            --line: #e5eaf2;
+            --surface: #ffffff;
+            --surface-soft: #f7f9fc;
+            --primary: #6676d9;
+            --primary-dark: #5262c5;
+            --primary-soft: #eef0ff;
+            --sky-soft: #edf7fa;
+            --mint: #87b8ae;
+            --danger: #c64f62;
+            --danger-soft: #fff1f3;
+            --success: #3d8173;
+            --success-soft: #edf8f5;
+            --shadow: 0 30px 80px rgba(49, 61, 98, .12), 0 4px 18px rgba(49, 61, 98, .05);
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        * {
+            margin: 0;
+        }
+
+        html {
+            min-width: 320px;
+            min-height: 100%;
+        }
+
+        body {
             min-height: 100vh;
+            min-height: 100dvh;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at 8% 14%, rgba(218, 229, 250, .9), transparent 27rem),
+                radial-gradient(circle at 93% 88%, rgba(220, 239, 235, .82), transparent 26rem),
+                var(--surface-soft);
+            font-family: "Manrope", "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        button, input {
+            font: inherit;
+        }
+
+        button, a {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .auth-page {
+            isolation: isolate;
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: grid;
+            place-items: center;
+            position: relative;
+            padding: 32px;
+        }
+
+        .auth-page::before,
+        .auth-page::after {
+            content: "";
+            position: fixed;
+            z-index: -1;
+            border-radius: 999px;
+            pointer-events: none;
+            filter: blur(1px);
+        }
+
+        .auth-page::before {
+            width: 15rem;
+            height: 15rem;
+            top: -8rem;
+            right: 10%;
+            border: 1px solid rgba(102, 118, 217, .13);
+            box-shadow: 0 0 0 2.8rem rgba(255, 255, 255, .22), 0 0 0 5.4rem rgba(102, 118, 217, .03);
+        }
+
+        .auth-page::after {
+            width: 11rem;
+            height: 11rem;
+            bottom: -6rem;
+            left: 6%;
+            background: rgba(255, 255, 255, .32);
+            border: 1px solid rgba(135, 184, 174, .16);
+        }
+
+        .auth-shell {
+            width: min(1160px, 100%);
+            min-height: min(730px, calc(100dvh - 64px));
+            display: grid;
+            grid-template-columns: minmax(0, 1.04fr) minmax(420px, .96fr);
+            overflow: hidden;
+            position: relative;
+            background: rgba(255, 255, 255, .92);
+            border: 1px solid rgba(216, 223, 235, .92);
+            border-radius: 32px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+        }
+
+        .brand-mark {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--ink);
+            text-decoration: none;
+        }
+
+        .brand-mark__icon {
+            width: 43px;
+            height: 43px;
+            display: grid;
+            place-items: center;
+            color: #fff;
+            border-radius: 13px;
+            background: linear-gradient(145deg, #8291e6, #6272d1);
+            box-shadow: 0 10px 25px rgba(102, 118, 217, .24);
+        }
+
+        .brand-mark__name {
+            display: block;
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: -.04em;
+            line-height: 1.05;
+        }
+
+        .brand-mark__name span {
+            color: var(--primary);
+        }
+
+        .brand-mark__caption {
+            display: block;
+            margin-top: 4px;
+            color: var(--ink-muted);
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+        }
+
+        .showcase {
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            padding: 45px 48px 38px;
+            overflow: hidden;
+            background:
+                linear-gradient(rgba(111, 126, 198, .055) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(111, 126, 198, .055) 1px, transparent 1px),
+                linear-gradient(145deg, #f4f6ff 0%, #f2f8fa 54%, #edf7f5 100%);
+            background-size: 28px 28px, 28px 28px, auto;
+            border-right: 1px solid rgba(221, 227, 237, .78);
+        }
+
+        .showcase::before {
+            content: "";
+            width: 360px;
+            height: 360px;
+            position: absolute;
+            right: -150px;
+            top: -140px;
+            border-radius: 50%;
+            background: rgba(192, 205, 243, .31);
+            box-shadow: 0 0 0 52px rgba(255, 255, 255, .18), 0 0 0 104px rgba(255, 255, 255, .13);
+        }
+
+        .showcase__copy {
+            max-width: 490px;
+            position: relative;
+            z-index: 1;
+            margin-top: clamp(48px, 8vh, 84px);
+        }
+
+        .eyebrow {
+            width: max-content;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 17px;
+            padding: 8px 12px;
+            color: #5665b8;
+            background: rgba(255, 255, 255, .72);
+            border: 1px solid rgba(102, 118, 217, .13);
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            box-shadow: 0 7px 20px rgba(70, 83, 132, .06);
+        }
+
+        .eyebrow__dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #7aa99f;
+            box-shadow: 0 0 0 4px rgba(122, 169, 159, .14);
+        }
+
+        .showcase h1 {
+            max-width: 470px;
+            color: #1c2747;
+            font-size: clamp(35px, 3.1vw, 48px);
+            font-weight: 800;
+            letter-spacing: -.055em;
+            line-height: 1.1;
+        }
+
+        .showcase h1 span {
+            color: #6676d9;
+        }
+
+        .showcase__lead {
+            max-width: 440px;
+            margin-top: 18px;
+            color: var(--ink-soft);
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .dashboard-preview {
+            width: min(470px, 91%);
+            min-height: 224px;
+            position: relative;
+            z-index: 1;
+            margin-top: 38px;
+            padding: 18px;
+            background: rgba(255, 255, 255, .85);
+            border: 1px solid rgba(255, 255, 255, .95);
+            border-radius: 22px;
+            box-shadow: 0 24px 55px rgba(64, 82, 119, .15), inset 0 0 0 1px rgba(215, 222, 236, .46);
+            transform: perspective(900px) rotateY(-2deg) rotateX(1deg);
+        }
+
+        .preview-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .preview-title {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            color: #34405e;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .preview-title::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            border-radius: 3px;
+            background: #8492df;
+            box-shadow: 11px 0 0 #b8c3ef;
+        }
+
+        .preview-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #5f8b82;
+            font-size: 9px;
+            font-weight: 800;
+        }
+
+        .preview-status::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #7eafa5;
+            box-shadow: 0 0 0 3px #e5f2ef;
+        }
+
+        .metric-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 9px;
+        }
+
+        .metric-card {
+            min-width: 0;
+            padding: 12px;
+            background: #f8f9fd;
+            border: 1px solid #edf0f6;
+            border-radius: 12px;
+        }
+
+        .metric-label {
+            color: #929caf;
+            font-size: 8px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .metric-value {
+            margin-top: 5px;
+            color: #293450;
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: -.03em;
+        }
+
+        .metric-trend {
+            margin-top: 4px;
+            color: #6f9d94;
+            font-size: 8px;
+            font-weight: 800;
+        }
+
+        .chart-panel {
+            display: grid;
+            grid-template-columns: 1fr 92px;
+            gap: 15px;
+            margin-top: 14px;
+            padding: 14px 12px 10px;
+            background: #fbfcfe;
+            border: 1px solid #edf0f6;
+            border-radius: 13px;
+        }
+
+        .bars {
+            height: 58px;
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            padding: 0 3px;
+            border-bottom: 1px solid #e9edf4;
+        }
+
+        .bar {
+            width: 100%;
+            height: var(--height);
+            min-height: 8px;
+            border-radius: 5px 5px 2px 2px;
+            background: linear-gradient(180deg, #94a0e6, #c9d0f1);
+        }
+
+        .donut-wrap {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .donut {
+            width: 46px;
+            height: 46px;
+            flex: 0 0 auto;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            background: conic-gradient(#7f8edc 0 66%, #dbe0f4 66% 85%, #deeeeb 85% 100%);
+        }
+
+        .donut::after {
+            content: "";
+            width: 27px;
+            height: 27px;
+            border-radius: 50%;
+            background: #fbfcfe;
+        }
+
+        .donut-copy strong,
+        .donut-copy span {
+            display: block;
+        }
+
+        .donut-copy strong {
+            color: #34405e;
+            font-size: 11px;
+        }
+
+        .donut-copy span {
+            color: #98a1b5;
+            font-size: 7px;
+        }
+
+        .floating-note {
+            position: absolute;
+            right: -41px;
+            bottom: 28px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 13px;
+            background: rgba(255, 255, 255, .96);
+            border: 1px solid #e8ecf3;
+            border-radius: 13px;
+            box-shadow: 0 14px 30px rgba(45, 61, 95, .13);
+            animation: float 4s ease-in-out infinite;
+        }
+
+        .floating-note__icon {
+            width: 29px;
+            height: 29px;
+            display: grid;
+            place-items: center;
+            color: #668e86;
+            background: #eaf5f2;
+            border-radius: 9px;
+        }
+
+        .floating-note strong,
+        .floating-note span {
+            display: block;
+            white-space: nowrap;
+        }
+
+        .floating-note strong {
+            color: #3f4a65;
+            font-size: 9px;
+        }
+
+        .floating-note span {
+            margin-top: 2px;
+            color: #929caf;
+            font-size: 7px;
+        }
+
+        .showcase__footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            position: relative;
+            z-index: 1;
+            margin-top: auto;
+            padding-top: 30px;
+            color: #8b95aa;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .showcase__footer span:last-child {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .showcase__footer span:last-child::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #87b8ae;
+        }
+
+        .login-panel {
+            min-width: 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 24px;
             position: relative;
-        }
-        
-        .auth-container::before {
-            content: '';
-            position: absolute;
-            top: -200px;
-            left: -200px;
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(124, 58, 237, 0.15) 0%, transparent 60%);
-            border-radius: 50%;
-            pointer-events: none;
+            padding: 48px 56px;
+            background: rgba(255, 255, 255, .94);
         }
 
-        .auth-container::after {
-            content: '';
-            position: absolute;
-            bottom: -200px;
-            right: -200px;
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(6, 182, 212, 0.1) 0%, transparent 60%);
-            border-radius: 50%;
-            pointer-events: none;
+        .mobile-brand {
+            display: none;
         }
 
-        #loginCard {
-            width: 100%;
-            max-width: 960px;
-            display: grid;
-            grid-template-columns: 1fr 440px;
-            border-radius: var(--radius-xl);
-            overflow: hidden;
-            background: rgba(10, 10, 24, 0.6);
-            backdrop-filter: blur(24px);
-            border: 1px solid var(--border-strong);
-            box-shadow: var(--shadow-xl), 0 0 60px rgba(124, 58, 237, 0.08);
-            position: relative;
-            z-index: 10;
+        .login-content {
+            width: min(100%, 390px);
         }
 
-        .login-left {
-            background: linear-gradient(135deg, rgba(10, 10, 30, 0.8) 0%, rgba(8, 8, 22, 0.9) 100%);
-            padding: 48px;
+        .login-kicker {
             display: flex;
-            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 13px;
+            color: #697692;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+        }
+
+        .login-kicker svg {
+            color: var(--primary);
+        }
+
+        .login-heading h2 {
+            color: #19233e;
+            font-size: clamp(28px, 2.4vw, 36px);
+            font-weight: 800;
+            letter-spacing: -.05em;
+            line-height: 1.18;
+        }
+
+        .login-heading p {
+            margin-top: 10px;
+            color: var(--ink-soft);
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .alert {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-top: 22px;
+            padding: 12px 13px;
+            border: 1px solid;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 1.55;
+        }
+
+        .alert svg {
+            flex: 0 0 auto;
+            margin-top: 1px;
+        }
+
+        .alert--error {
+            color: #a43e51;
+            background: var(--danger-soft);
+            border-color: #f2d4da;
+        }
+
+        .alert--success {
+            color: var(--success);
+            background: var(--success-soft);
+            border-color: #d2e9e3;
+        }
+
+        .login-form {
+            margin-top: 30px;
+        }
+
+        .field {
+            margin-bottom: 19px;
+        }
+
+        .field__label {
+            display: flex;
+            align-items: center;
             justify-content: space-between;
+            margin-bottom: 8px;
+            color: #35405c;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .field__required {
+            color: var(--danger);
+        }
+
+        .input-wrap {
             position: relative;
-            border-right: 1px solid var(--border);
         }
 
-        .login-left::before {
-            content: '';
+        .input-wrap__icon {
+            width: 18px;
+            height: 18px;
             position: absolute;
-            inset: 0;
-            background-image:
-                linear-gradient(rgba(124, 58, 237, 0.04) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(124, 58, 237, 0.04) 1px, transparent 1px);
-            background-size: 20px 20px;
+            z-index: 1;
+            top: 50%;
+            left: 15px;
+            color: #9ca5b8;
+            transform: translateY(-50%);
             pointer-events: none;
+            transition: color .2s ease;
         }
 
-        .login-right {
-            background: var(--bg-card);
-            padding: 48px 40px;
+        .field__input {
+            width: 100%;
+            height: 52px;
+            padding: 0 47px 0 45px;
+            color: #25304b;
+            background: #fafbfc;
+            border: 1px solid #dfe5ee;
+            border-radius: 13px;
+            outline: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+        }
+
+        .field__input::placeholder {
+            color: #a8b0bf;
+            font-weight: 500;
+        }
+
+        .field__input:hover {
+            border-color: #cbd3e1;
+            background: #fff;
+        }
+
+        .field__input:focus {
+            background: #fff;
+            border-color: #8693df;
+            box-shadow: 0 0 0 4px rgba(102, 118, 217, .11);
+        }
+
+        .input-wrap:focus-within .input-wrap__icon {
+            color: var(--primary);
+        }
+
+        .field__input.is-invalid {
+            border-color: #d97b8b;
+            box-shadow: 0 0 0 4px rgba(198, 79, 98, .08);
+        }
+
+        .field__error {
             display: flex;
-            flex-direction: column;
-            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            margin-top: 7px;
+            color: var(--danger);
+            font-size: 11px;
+            font-weight: 700;
         }
 
-        /* Mobile responsive */
-        @media (max-width: 800px) {
-            #loginCard {
-                grid-template-columns: 1fr;
-                max-width: 440px;
+        .password-toggle {
+            width: 36px;
+            height: 36px;
+            display: grid;
+            place-items: center;
+            position: absolute;
+            top: 50%;
+            right: 8px;
+            color: #8e98ab;
+            background: transparent;
+            border: 0;
+            border-radius: 9px;
+            cursor: pointer;
+            transform: translateY(-50%);
+            transition: color .2s ease, background .2s ease;
+        }
+
+        .password-toggle:hover {
+            color: var(--primary-dark);
+            background: var(--primary-soft);
+        }
+
+        .password-toggle:focus-visible,
+        .pin-login:focus-visible,
+        .submit-button:focus-visible {
+            outline: 3px solid rgba(102, 118, 217, .23);
+            outline-offset: 3px;
+        }
+
+        .eye-off {
+            display: none;
+        }
+
+        .password-toggle.is-visible .eye-on {
+            display: none;
+        }
+
+        .password-toggle.is-visible .eye-off {
+            display: block;
+        }
+
+        .form-options {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 1px 0 24px;
+        }
+
+        .remember {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            position: relative;
+            color: #69738a;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .remember input {
+            width: 18px;
+            height: 18px;
+            margin: 0;
+            appearance: none;
+            -webkit-appearance: none;
+            background: #fff;
+            border: 1px solid #d2d9e5;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background .2s ease, border-color .2s ease, box-shadow .2s ease;
+        }
+
+        .remember input:checked {
+            background-color: var(--primary);
+            border-color: var(--primary);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='m2.3 6.1 2.2 2.2 5.2-5.1' fill='none' stroke='white' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .remember input:focus-visible {
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(102, 118, 217, .14);
+        }
+
+        .secure-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            color: #98a1b5;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .submit-button {
+            width: 100%;
+            height: 53px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+            color: #fff;
+            background: linear-gradient(135deg, #7180dc, #5e6dca);
+            border: 0;
+            border-radius: 13px;
+            box-shadow: 0 12px 25px rgba(91, 106, 199, .22);
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: .01em;
+            transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+        }
+
+        .submit-button::before {
+            content: "";
+            width: 90px;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: -120px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .24), transparent);
+            transform: skewX(-18deg);
+            transition: left .55s ease;
+        }
+
+        .submit-button:hover {
+            background: linear-gradient(135deg, #6979d7, #5665c1);
+            box-shadow: 0 16px 30px rgba(91, 106, 199, .28);
+            transform: translateY(-1px);
+        }
+
+        .submit-button:hover::before {
+            left: calc(100% + 30px);
+        }
+
+        .submit-button:active {
+            transform: translateY(0);
+        }
+
+        .submit-button svg {
+            transition: transform .2s ease;
+        }
+
+        .submit-button:hover svg {
+            transform: translateX(3px);
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            margin: 25px 0 19px;
+            color: #a0a8b7;
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: #e8ecf2;
+        }
+
+        .pin-login {
+            width: 100%;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            color: #536078;
+            background: #f8f9fc;
+            border: 1px solid #e1e6ef;
+            border-radius: 13px;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 800;
+            transition: color .2s ease, border-color .2s ease, background .2s ease, transform .2s ease;
+        }
+
+        .pin-login:hover {
+            color: var(--primary-dark);
+            background: var(--primary-soft);
+            border-color: #d5daf4;
+            transform: translateY(-1px);
+        }
+
+        .help-text {
+            margin-top: 23px;
+            color: #9aa3b4;
+            font-size: 10px;
+            font-weight: 600;
+            line-height: 1.6;
+            text-align: center;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+
+        @media (max-width: 1000px) {
+            .auth-page {
+                padding: 22px;
             }
-            .login-left { display: none; }
-            .auth-container { padding: 16px; align-items: flex-start; padding-top: 40px; }
+
+            .auth-shell {
+                min-height: min(690px, calc(100dvh - 44px));
+                grid-template-columns: minmax(0, .94fr) minmax(390px, 1.06fr);
+            }
+
+            .showcase {
+                padding: 38px 34px 32px;
+            }
+
+            .showcase__copy {
+                margin-top: 60px;
+            }
+
+            .showcase h1 {
+                font-size: 36px;
+            }
+
+            .dashboard-preview {
+                width: 100%;
+            }
+
+            .floating-note {
+                right: -18px;
+            }
+
+            .login-panel {
+                padding: 44px 38px;
+            }
+        }
+
+        @media (max-width: 800px) {
+            body {
+                background:
+                    radial-gradient(circle at 5% 8%, rgba(218, 229, 250, .92), transparent 20rem),
+                    radial-gradient(circle at 96% 96%, rgba(220, 239, 235, .82), transparent 20rem),
+                    var(--surface-soft);
+            }
+
+            .auth-page {
+                display: block;
+                padding: 20px;
+            }
+
+            .auth-shell {
+                width: min(500px, 100%);
+                min-height: calc(100dvh - 40px);
+                display: block;
+                margin: 0 auto;
+                border-radius: 25px;
+            }
+
+            .showcase {
+                display: none;
+            }
+
+            .login-panel {
+                min-height: calc(100dvh - 42px);
+                display: block;
+                padding: 32px 34px;
+            }
+
+            .mobile-brand {
+                display: block;
+                margin-bottom: clamp(54px, 10vh, 88px);
+            }
+
+            .login-content {
+                width: 100%;
+                margin: 0 auto;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .auth-page {
+                padding: 0;
+            }
+
+            .auth-shell {
+                width: 100%;
+                min-height: 100dvh;
+                border: 0;
+                border-radius: 0;
+                box-shadow: none;
+            }
+
+            .login-panel {
+                min-height: 100dvh;
+                padding: 26px 24px 32px;
+            }
+
+            .mobile-brand {
+                margin-bottom: clamp(48px, 9vh, 72px);
+            }
+
+            .login-heading h2 {
+                font-size: 29px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .login-panel {
+                padding-right: 18px;
+                padding-left: 18px;
+            }
+
+            .secure-label {
+                display: none;
+            }
+        }
+
+        @media (max-height: 760px) and (min-width: 801px) {
+            .auth-page {
+                padding-top: 20px;
+                padding-bottom: 20px;
+            }
+
+            .auth-shell {
+                min-height: 660px;
+            }
+
+            .showcase__copy {
+                margin-top: 34px;
+            }
+
+            .dashboard-preview {
+                margin-top: 25px;
+            }
+
+            .login-panel {
+                padding-top: 32px;
+                padding-bottom: 32px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                scroll-behavior: auto !important;
+                animation-duration: .01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: .01ms !important;
+            }
         }
     </style>
 </head>
 <body>
-
-<div class="auth-container">
-    <div id="loginCard">
-        <!-- Left Panel: Branding -->
-        <div class="login-left">
-            <div style="position: relative; z-index: 1">
-                <div style="display:flex;align-items:center;gap:14px;margin-bottom:48px">
-                    <div class="sidebar-logo-icon" style="width: 52px; height: 52px; font-size: 24px;">
-                        <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="1.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <div style="font-family: var(--font-sans); font-size:26px;font-weight:800;letter-spacing:-0.02em" class="gradient-text">FashionPOS</div>
-                        <div style="font-size:13px;color:var(--text-muted);font-weight:500;">Sistem POS Swalayan Pakaian</div>
-                    </div>
-                </div>
-
-                <div style="margin-bottom:36px">
-                    <h1 style="font-family: var(--font-sans); font-size:32px;font-weight:800;color:var(--text-primary);line-height:1.2;margin-bottom:16px;letter-spacing:-0.5px">
-                        Kelola toko pakaian<br>dengan lebih efisien
-                    </h1>
-                    <p style="font-size:14px;color:var(--text-secondary);line-height:1.7;max-width:320px;">
-                        Sistem POS terintegrasi untuk mencatat transaksi, mengelola stok, dan memantau laporan keuangan secara real-time.
-                    </p>
-                </div>
-
-                <!-- Features -->
-                @foreach(['Transaksi & Cetak Struk Cepat', 'Manajemen Stok & Inventori', 'Laporan Keuangan Real-time', 'Multi-role Akses Karyawan'] as $feature)
-                <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
-                    <div style="width:24px;height:24px;background:rgba(124, 58, 237, 0.15);border: 1px solid rgba(124, 58, 237, 0.3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;color:var(--color-primary-light)">✓</div>
-                    <span style="font-size:13.5px;color:var(--text-secondary);font-weight:500">{{ $feature }}</span>
-                </div>
-                @endforeach
-            </div>
-
-            <div style="font-size:12px;color:var(--text-muted);position:relative;z-index:1;">
-                © {{ date('Y') }} FashionPOS · v2.0
-            </div>
-        </div>
-
-        <!-- Right Panel: Login Form -->
-        <div class="login-right">
-            <div style="margin-bottom:32px;text-align:center">
-                <h2 style="font-family: var(--font-sans); font-size:24px;font-weight:800;color:var(--text-primary);margin-bottom:6px;letter-spacing:-0.5px">Masuk ke Akun</h2>
-                <p style="font-size:13.5px;color:var(--text-muted)">Gunakan email dan password yang terdaftar</p>
-            </div>
-
-            @if(session('error'))
-            <div class="alert alert-error mb-4">
-                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="flex-shrink:0">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-                {{ session('error') }}
-            </div>
-            @endif
-
-            <form method="POST" action="{{ route('login') }}">
-                @csrf
-
-                <div class="form-group">
-                    <label class="form-label" for="email">Email <span style="color:var(--color-danger)">*</span></label>
-                    <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        class="form-control {{ $errors->has('email') ? 'error' : '' }}"
-                        value="{{ old('email') }}"
-                        placeholder="admin@fashionpos.id"
-                        autocomplete="email"
-                        autofocus
-                        required>
-                    @error('email')
-                    <div class="form-error">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label" for="password">
-                        Password <span style="color:var(--color-danger)">*</span>
-                    </label>
-                    <div style="position:relative">
-                        <input
-                            type="password"
-                            id="password"
-                            name="password"
-                            class="form-control {{ $errors->has('password') ? 'error' : '' }}"
-                            placeholder="••••••••"
-                            autocomplete="current-password"
-                            required>
-                        <button type="button" onclick="togglePassword()" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-muted);padding:2px" id="togglePwdBtn">
-                            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                            </svg>
-                        </button>
-                    </div>
-                    @error('password')
-                    <div class="form-error">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
-                    <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
-                        <input type="checkbox" name="remember" id="remember" style="accent-color:var(--color-primary);width:16px;height:16px">
-                        <span style="font-size:13px;color:var(--text-secondary)">Ingat saya</span>
-                    </label>
-                </div>
-
-                <button type="submit" class="btn btn-primary btn-block btn-xl">
-                    Masuk
-                </button>
-            </form>
-
-            <!-- PIN Login divider -->
-            <div style="display:flex;align-items:center;gap:12px;margin:24px 0">
-                <div style="flex:1;height:1px;background:var(--border)"></div>
-                <span style="font-size:12px;color:var(--text-muted);font-weight:600;letter-spacing:1px;text-transform:uppercase">atau</span>
-                <div style="flex:1;height:1px;background:var(--border)"></div>
-            </div>
-
-            <a href="{{ route('login.pin.page') }}" class="btn btn-secondary btn-block btn-lg" style="gap:8px">
-                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                </svg>
-                Login dengan PIN Kasir
+<main class="auth-page">
+    <section class="auth-shell" aria-label="Login FashionPOS">
+        <aside class="showcase" aria-label="Tentang FashionPOS">
+            <a class="brand-mark" href="{{ route('login') }}" aria-label="FashionPOS">
+                <span class="brand-mark__icon">
+                    <svg width="23" height="23" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M8.25 8.25V6a3.75 3.75 0 0 1 7.5 0v2.25M5.35 8.25h13.3l1.1 12.25H4.25L5.35 8.25Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+                <span>
+                    <span class="brand-mark__name">Fashion<span>POS</span></span>
+                    <span class="brand-mark__caption">Smart retail system</span>
+                </span>
             </a>
 
-            <div style="margin-top:24px;font-size:12px;color:var(--text-muted);text-align:center">
-                Hubungi administrator jika lupa password
+            <div class="showcase__copy">
+                <div class="eyebrow"><span class="eyebrow__dot"></span> Retail, dibuat lebih ringkas</div>
+                <h1>Kendalikan toko dari satu <span>ruang kerja.</span></h1>
+                <p class="showcase__lead">Transaksi, inventori, dan laporan tersusun dalam alur kerja yang cepat agar tim Anda dapat fokus melayani pelanggan.</p>
+
+                <div class="dashboard-preview" aria-hidden="true">
+                    <div class="preview-topbar">
+                        <span class="preview-title">Ringkasan hari ini</span>
+                        <span class="preview-status">Live</span>
+                    </div>
+                    <div class="metric-row">
+                        <div class="metric-card">
+                            <div class="metric-label">Penjualan</div>
+                            <div class="metric-value">Rp8,4jt</div>
+                            <div class="metric-trend">↗ 12,4%</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Transaksi</div>
+                            <div class="metric-value">148</div>
+                            <div class="metric-trend">↗ 8,1%</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Produk aktif</div>
+                            <div class="metric-value">1.284</div>
+                            <div class="metric-trend">Stok aman</div>
+                        </div>
+                    </div>
+                    <div class="chart-panel">
+                        <div class="bars">
+                            <span class="bar" style="--height: 30%"></span>
+                            <span class="bar" style="--height: 47%"></span>
+                            <span class="bar" style="--height: 38%"></span>
+                            <span class="bar" style="--height: 69%"></span>
+                            <span class="bar" style="--height: 55%"></span>
+                            <span class="bar" style="--height: 82%"></span>
+                            <span class="bar" style="--height: 72%"></span>
+                            <span class="bar" style="--height: 94%"></span>
+                        </div>
+                        <div class="donut-wrap">
+                            <span class="donut"></span>
+                            <span class="donut-copy"><strong>66%</strong><span>Target tercapai</span></span>
+                        </div>
+                    </div>
+                    <div class="floating-note">
+                        <span class="floating-note__icon">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                                <path d="m5 12.5 4 4L19 6.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </span>
+                        <span><strong>Stok tersinkronisasi</strong><span>Baru saja diperbarui</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="showcase__footer">
+                <span>© {{ date('Y') }} FashionPOS</span>
+                <span>Sistem berjalan normal</span>
+            </footer>
+        </aside>
+
+        <div class="login-panel">
+            <div class="mobile-brand">
+                <a class="brand-mark" href="{{ route('login') }}" aria-label="FashionPOS">
+                    <span class="brand-mark__icon">
+                        <svg width="23" height="23" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M8.25 8.25V6a3.75 3.75 0 0 1 7.5 0v2.25M5.35 8.25h13.3l1.1 12.25H4.25L5.35 8.25Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </span>
+                    <span>
+                        <span class="brand-mark__name">Fashion<span>POS</span></span>
+                        <span class="brand-mark__caption">Smart retail system</span>
+                    </span>
+                </a>
+            </div>
+
+            <div class="login-content">
+                <header class="login-heading">
+                    <div class="login-kicker">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M12 3 4.5 6v5.25c0 4.63 3.2 8.95 7.5 10.05 4.3-1.1 7.5-5.42 7.5-10.05V6L12 3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                            <path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Portal aman
+                    </div>
+                    <h2>Selamat datang kembali.</h2>
+                    <p>Masukkan detail akun Anda untuk melanjutkan ke dashboard.</p>
+                </header>
+
+                @if(session('success'))
+                    <div class="alert alert--success" role="status">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z" stroke="currentColor" stroke-width="1.8"/>
+                            <path d="m8.5 12 2.25 2.25L15.5 9.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>{{ session('success') }}</span>
+                    </div>
+                @endif
+
+                @if(session('error'))
+                    <div class="alert alert--error" role="alert">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z" stroke="currentColor" stroke-width="1.8"/>
+                            <path d="M12 7.8v4.8M12 16.2h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                        </svg>
+                        <span>{{ session('error') }}</span>
+                    </div>
+                @endif
+
+                <form method="POST" action="{{ route('login.post') }}" class="login-form">
+                    @csrf
+
+                    <div class="field">
+                        <label class="field__label" for="email">Alamat email <span class="field__required" aria-hidden="true">*</span></label>
+                        <div class="input-wrap">
+                            <svg class="input-wrap__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="M4 6.75h16v10.5H4V6.75Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+                                <path d="m4.5 7.25 7.5 5.5 7.5-5.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <input
+                                class="field__input {{ $errors->has('email') ? 'is-invalid' : '' }}"
+                                type="email"
+                                id="email"
+                                name="email"
+                                value="{{ old('email') }}"
+                                placeholder="Masukkan email"
+                                autocomplete="email"
+                                inputmode="email"
+                                autofocus
+                                required
+                                @if($errors->has('email')) aria-invalid="true" aria-describedby="email-error" @endif>
+                        </div>
+                        @error('email')
+                            <div class="field__error" id="email-error" role="alert">
+                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                                    <circle cx="6" cy="6" r="5" stroke="currentColor"/>
+                                    <path d="M6 3.3v3.1M6 8.6h.01" stroke="currentColor" stroke-linecap="round"/>
+                                </svg>
+                                {{ $message }}
+                            </div>
+                        @enderror
+                    </div>
+
+                    <div class="field">
+                        <label class="field__label" for="password">Password <span class="field__required" aria-hidden="true">*</span></label>
+                        <div class="input-wrap">
+                            <svg class="input-wrap__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="M6.5 10.5h11v9h-11v-9Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+                                <path d="M8.75 10.5V8a3.25 3.25 0 1 1 6.5 0v2.5M12 14v2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                            </svg>
+                            <input
+                                class="field__input {{ $errors->has('password') ? 'is-invalid' : '' }}"
+                                type="password"
+                                id="password"
+                                name="password"
+                                placeholder="Masukkan password"
+                                autocomplete="current-password"
+                                required
+                                @if($errors->has('password')) aria-invalid="true" aria-describedby="password-error" @endif>
+                            <button class="password-toggle" type="button" id="passwordToggle" aria-label="Tampilkan password" aria-pressed="false">
+                                <svg class="eye-on" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                    <path d="M2.75 12s3.25-5.25 9.25-5.25S21.25 12 21.25 12 18 17.25 12 17.25 2.75 12 2.75 12Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+                                    <circle cx="12" cy="12" r="2.25" stroke="currentColor" stroke-width="1.7"/>
+                                </svg>
+                                <svg class="eye-off" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                    <path d="m4 4 16 16M9.2 7.2A8.4 8.4 0 0 1 12 6.75c6 0 9.25 5.25 9.25 5.25a15.5 15.5 0 0 1-2.1 2.65M14.4 16.9c-.75.23-1.55.35-2.4.35C6 17.25 2.75 12 2.75 12a15 15 0 0 1 3.1-3.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                        </div>
+                        @error('password')
+                            <div class="field__error" id="password-error" role="alert">
+                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                                    <circle cx="6" cy="6" r="5" stroke="currentColor"/>
+                                    <path d="M6 3.3v3.1M6 8.6h.01" stroke="currentColor" stroke-linecap="round"/>
+                                </svg>
+                                {{ $message }}
+                            </div>
+                        @enderror
+                    </div>
+
+                    <div class="form-options">
+                        <label class="remember" for="remember">
+                            <input type="checkbox" name="remember" id="remember" value="1" {{ old('remember') ? 'checked' : '' }}>
+                            <span>Ingat saya</span>
+                        </label>
+                        <span class="secure-label">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="M7 10.5h10v9H7v-9ZM9 10.5V8a3 3 0 0 1 6 0v2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Koneksi aman
+                        </span>
+                    </div>
+
+                    <button type="submit" class="submit-button">
+                        <span>Masuk ke dashboard</span>
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M5 12h14m-5-5 5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </form>
+
+                <div class="divider">atau akses cepat</div>
+
+                <a href="{{ route('login.pin.page') }}" class="pin-login">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <rect x="4" y="4" width="6" height="6" rx="1.2" stroke="currentColor" stroke-width="1.6"/>
+                        <rect x="14" y="4" width="6" height="6" rx="1.2" stroke="currentColor" stroke-width="1.6"/>
+                        <rect x="4" y="14" width="6" height="6" rx="1.2" stroke="currentColor" stroke-width="1.6"/>
+                        <path d="M14 15.5h2M19 15.5h1M14 19.5h1M18 19.5h2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                    </svg>
+                    Login dengan PIN kasir
+                </a>
+
+                <p class="help-text">Kesulitan mengakses akun? Hubungi administrator toko Anda.</p>
             </div>
         </div>
-    </div>
-</div>
+    </section>
+</main>
 
 <script>
-function togglePassword() {
-    const pwd = document.getElementById('password');
-    pwd.type = pwd.type === 'password' ? 'text' : 'password';
-}
+    (() => {
+        const passwordInput = document.getElementById('password');
+        const passwordToggle = document.getElementById('passwordToggle');
+
+        passwordToggle.addEventListener('click', () => {
+            const shouldShow = passwordInput.type === 'password';
+
+            passwordInput.type = shouldShow ? 'text' : 'password';
+            passwordToggle.classList.toggle('is-visible', shouldShow);
+            passwordToggle.setAttribute('aria-pressed', String(shouldShow));
+            passwordToggle.setAttribute('aria-label', shouldShow ? 'Sembunyikan password' : 'Tampilkan password');
+            passwordInput.focus({ preventScroll: true });
+        });
+    })();
 </script>
 </body>
 </html>
