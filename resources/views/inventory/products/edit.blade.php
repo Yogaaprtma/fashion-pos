@@ -56,6 +56,42 @@
                 </div>
             </div>
 
+            <hr style="margin:24px 0;border-color:var(--border)">
+
+            <div class="flex-between" style="margin-bottom:16px">
+                <div class="card-title">Varian Produk (Ukuran & Warna)</div>
+                <button type="button" class="btn btn-sm btn-secondary" onclick="addVariant()">+ Tambah Varian</button>
+            </div>
+
+            <div id="variantsContainer">
+                @foreach($product->variants as $index => $variant)
+                <div class="variant-row" style="display:grid;grid-template-columns:1fr 1fr 1fr 40px;gap:10px;margin-bottom:10px;align-items:end">
+                    <input type="hidden" name="variants[{{ $index }}][id]" value="{{ $variant->id }}">
+                    <div class="form-group" style="margin:0">
+                        <label class="form-label">Ukuran</label>
+                        <input type="text" name="variants[{{ $index }}][size]" class="form-control" value="{{ $variant->size }}" placeholder="M, L, XL...">
+                    </div>
+                    <div class="form-group" style="margin:0">
+                        <label class="form-label">Warna</label>
+                        <input type="text" name="variants[{{ $index }}][color]" class="form-control" value="{{ $variant->color }}" placeholder="Hitam, Putih...">
+                    </div>
+                    <div class="form-group" style="margin:0">
+                        <label class="form-label">Stok Saat Ini</label>
+                        <input type="number" class="form-control" value="{{ $variant->stock_qty }}" readonly title="Gunakan menu Stok untuk mengubah" style="background:#f1f5f9;cursor:not-allowed;">
+                    </div>
+                    @if($product->variants->count() > 1)
+                        <button type="button" class="btn btn-danger btn-icon" onclick="removeVariant(this, {{ $variant->id }})" title="Hapus Varian">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        </button>
+                    @else
+                        <button type="button" class="btn btn-secondary btn-icon" disabled>✕</button>
+                    @endif
+                </div>
+                @endforeach
+            </div>
+
+            <input type="hidden" name="deleted_variants" id="deletedVariants" value="">
+
             <div style="margin-top:32px;display:flex;justify-content:flex-end;gap:12px">
                 <a href="{{ route('inventory.products.index') }}" class="btn btn-secondary">Batal</a>
                 <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
@@ -63,4 +99,41 @@
         </form>
     </div>
 </div>
+
+<script>
+    let variantIndex = {{ $product->variants->count() }};
+    let deletedVariants = [];
+
+    function addVariant() {
+        const container = document.getElementById('variantsContainer');
+        const row = document.createElement('div');
+        row.className = 'variant-row';
+        row.style.cssText = 'display:grid;grid-template-columns:1fr 1fr 1fr 40px;gap:10px;margin-bottom:10px;align-items:end';
+        row.innerHTML = `
+            <div class="form-group" style="margin:0">
+                <label class="form-label">Ukuran</label>
+                <input type="text" name="variants[new_${variantIndex}][size]" class="form-control" placeholder="M, L, XL..." required>
+            </div>
+            <div class="form-group" style="margin:0">
+                <label class="form-label">Warna</label>
+                <input type="text" name="variants[new_${variantIndex}][color]" class="form-control" placeholder="Hitam, Putih..." required>
+            </div>
+            <div class="form-group" style="margin:0">
+                <label class="form-label">Stok Awal</label>
+                <input type="number" name="variants[new_${variantIndex}][stock_qty]" class="form-control" value="0" min="0" required>
+            </div>
+            <button type="button" class="btn btn-secondary btn-icon" onclick="this.parentElement.remove()">✕</button>
+        `;
+        container.appendChild(row);
+        variantIndex++;
+    }
+
+    function removeVariant(btn, variantId) {
+        if(confirm('Apakah Anda yakin ingin menghapus varian ini?')) {
+            deletedVariants.push(variantId);
+            document.getElementById('deletedVariants').value = deletedVariants.join(',');
+            btn.parentElement.remove();
+        }
+    }
+</script>
 @endsection
