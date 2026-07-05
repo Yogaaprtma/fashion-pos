@@ -154,6 +154,8 @@ class ProductController extends Controller
             'buy_price' => 'required|numeric|min:0',
             'sell_price' => 'required|numeric|min:0',
             'min_stock' => 'required|integer|min:0',
+            'variants' => 'nullable|array',
+            'deleted_variants' => 'nullable|string',
         ]);
 
         $product->update($request->only([
@@ -168,8 +170,41 @@ class ProductController extends Controller
             'is_active',
         ]));
 
+        if ($request->deleted_variants) {
+            $deletedIds = array_filter(explode(',', $request->deleted_variants));
+            if (count($deletedIds) > 0) {
+                ProductVariant::whereIn('id', $deletedIds)->where('product_id', $product->id)->delete();
+            }
+        }
+
+        if ($request->variants) {
+            foreach ($request->variants as $key => $variantData) {
+                $size = $variantData['size'] ?? 'OneSize';
+                $color = $variantData['color'] ?? 'Default';
+
+                if (isset($variantData['id'])) {
+                    ProductVariant::where('id', $variantData['id'])
+                        ->where('product_id', $product->id)
+                        ->update([
+                            'size' => $size,
+                            'color' => $color,
+                        ]);
+                } else {
+                    $skuVariant = $product->sku . '-' . $size . '-' . strtoupper(substr($color, 0, 3)) . '-' . rand(10, 99);
+                    ProductVariant::create([
+                        'product_id' => $product->id,
+                        'size' => $size,
+                        'color' => $color,
+                        'sku_variant' => $skuVariant,
+                        'stock_qty' => $variantData['stock_qty'] ?? 0,
+                        'is_active' => true,
+                    ]);
+                }
+            }
+        }
+
         return redirect()->route('inventory.products.show', $product)
-            ->with('success', 'Produk berhasil diperbarui.');
+            ->with('success', 'Produk dan varian berhasil diperbarui.');
     }
 
     public function destroy(Product $product)
