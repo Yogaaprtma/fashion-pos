@@ -28,6 +28,9 @@ class Transaction extends Model
         'points_earned',
         'points_used',
         'point_discount',
+        'payment_status',
+        'remaining_debt',
+        'due_date',
     ];
 
     protected $casts = [
@@ -40,6 +43,8 @@ class Transaction extends Model
         'voided_at' => 'datetime',
         'promotion_discount' => 'decimal:2',
         'point_discount' => 'decimal:2',
+        'remaining_debt' => 'decimal:2',
+        'due_date' => 'date',
         'points_earned' => 'integer',
         'points_used' => 'integer',
     ];
