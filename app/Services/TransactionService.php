@@ -13,6 +13,7 @@ use App\Models\AuditLog;
 use App\Models\Customer;
 use App\Models\CustomerPointHistory;
 use App\Models\Promotion;
+use App\Models\BranchProductStock;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
@@ -117,7 +118,7 @@ class TransactionService
                 // Deduct stock
                 $branchId = $session->branch_id;
                 if ($branchId) {
-                    $branchStock = \App\Models\BranchProductStock::firstOrCreate(
+                    $branchStock = BranchProductStock::firstOrCreate(
                         ['branch_id' => $branchId, 'product_variant_id' => $variant->id],
                         ['stock_qty' => $variant->stock_qty]
                     );
