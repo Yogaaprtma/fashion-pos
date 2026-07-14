@@ -24,6 +24,7 @@
                 <th>Nama</th>
                 <th>No. Telepon</th>
                 <th>Email</th>
+                <th>Tgl. Lahir</th>
                 <th>Total Belanja</th>
                 <th>Poin</th>
                 <th>Status Member</th>
@@ -36,6 +37,7 @@
                 <td style="font-weight: 600;">{{ $c->name }}</td>
                 <td>{{ $c->phone ?? '-' }}</td>
                 <td>{{ $c->email ?? '-' }}</td>
+                <td>{{ $c->birth_date ? $c->birth_date->format('d M Y') : '-' }}</td>
                 <td>Rp {{ number_format($c->total_spent, 0, ',', '.') }}</td>
                 <td><span class="badge badge-warning">{{ $c->points }} pts</span></td>
                 <td>
@@ -51,7 +53,7 @@
             </tr>
             @empty
             <tr>
-                <td colspan="7" class="text-center" style="padding:40px;color:var(--text-muted)">Belum ada data pelanggan.</td>
+                <td colspan="8" class="text-center" style="padding:40px;color:var(--text-muted)">Belum ada data pelanggan.</td>
             </tr>
             @endforelse
         </tbody>
@@ -84,6 +86,10 @@
                 <div class="form-group">
                     <label class="form-label">Email</label>
                     <input type="email" name="email" id="c_email" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Tanggal Lahir</label>
+                    <input type="date" name="birth_date" id="c_birth_date" class="form-control">
                 </div>
                 <div class="form-group" style="margin-top:15px">
                     <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
@@ -118,6 +124,7 @@ function editCustomer(c) {
     document.getElementById('c_name').value = c.name;
     document.getElementById('c_phone').value = c.phone || '';
     document.getElementById('c_email').value = c.email || '';
+    document.getElementById('c_birth_date').value = c.birth_date ? c.birth_date.substring(0, 10) : '';
     document.getElementById('c_member').checked = c.is_member;
     document.getElementById('customerModal').style.display = 'flex';
 }
