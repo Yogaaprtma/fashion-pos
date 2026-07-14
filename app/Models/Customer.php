@@ -14,9 +14,15 @@ class Customer extends Model
         'phone',
         'email',
         'address',
+        'birth_date',
         'points',
         'total_spent',
         'is_member',
+    ];
+
+    protected $casts = [
+        'birth_date' => 'date',
+        'is_member' => 'boolean',
     ];
 
     public function transactions()
