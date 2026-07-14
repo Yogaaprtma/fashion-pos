@@ -20,6 +20,7 @@ class CustomerController extends Controller
             'phone' => 'nullable|string|max:20|unique:customers',
             'email' => 'nullable|email|max:255',
             'address' => 'nullable|string',
+            'birth_date' => 'nullable|date',
             'is_member' => 'boolean',
         ]);
 
@@ -35,6 +36,7 @@ class CustomerController extends Controller
             'phone' => 'nullable|string|max:20|unique:customers,phone,' . $customer->id,
             'email' => 'nullable|email|max:255',
             'address' => 'nullable|string',
+            'birth_date' => 'nullable|date',
             'is_member' => 'boolean',
         ]);
 
@@ -55,7 +57,15 @@ class CustomerController extends Controller
         $customers = Customer::where('name', 'like', "%$q%")
             ->orWhere('phone', 'like', "%$q%")
             ->limit(10)
-            ->get();
+            ->get()
+            ->map(function ($c) {
+                $isBirthday = false;
+                if ($c->birth_date) {
+                    $isBirthday = $c->birth_date->format('m-d') === date('m-d');
+                }
+                $c->is_birthday = $isBirthday;
+                return $c;
+            });
             
         return response()->json($customers);
     }
