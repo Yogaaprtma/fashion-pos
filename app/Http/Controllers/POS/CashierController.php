@@ -101,6 +101,36 @@ class CashierController extends Controller
             'status' => 'closed',
         ]);
 
+        // Send Telegram Report Notification
+        try {
+            $totalSales = $session->transactions()->where('status', 'completed')->sum('grand_total');
+            $transactionCount = $session->transactions()->where('status', 'completed')->count();
+            
+            $text = "🔔 <b>LAPORAN CLOSING SHIFT KASIR</b>\n\n";
+            $text .= "👤 <b>Kasir:</b> " . auth()->user()->name . "\n";
+            $text .= "📅 <b>Tanggal:</b> " . now()->format('d M Y H:i') . "\n";
+            $text .= "🏢 <b>Cabang:</b> " . ($session->branch ? $session->branch->name : 'Pusat') . "\n\n";
+            $text .= "💰 <b>Modal Awal:</b> Rp " . number_format($session->opening_balance, 0, ',', '.') . "\n";
+            $text .= "💵 <b>Penjualan Tunai:</b> Rp " . number_format($cashPayments, 0, ',', '.') . "\n";
+            $text .= "📈 <b>Total Omset Shift:</b> Rp " . number_format($totalSales, 0, ',', '.') . "\n";
+            $text .= "📊 <b>Total Transaksi:</b> " . $transactionCount . " Kali\n\n";
+            $text .= "📥 <b>Kas Fisik Dilaporkan:</b> Rp " . number_format($request->closing_balance, 0, ',', '.') . "\n";
+            
+            if ($difference > 0) {
+                $text .= "⚖️ <b>Selisih Kas:</b> +Rp " . number_format($difference, 0, ',', '.') . " (Kelebihan Uang)\n";
+            } elseif ($difference < 0) {
+                $text .= "⚖️ <b>Selisih Kas:</b> -Rp " . number_format(abs($difference), 0, ',', '.') . " (Kekurangan Uang)\n";
+            } else {
+                $text .= "⚖️ <b>Selisih Kas:</b> Pas (Rp 0)\n";
+            }
+            
+            $text .= "📝 <b>Catatan:</b> " . ($request->notes ?? '-') . "\n";
+
+            \App\Services\TelegramService::sendMessage($text);
+        } catch (\Exception $e) {
+            \Log::error('Closing notification error: ' . $e->getMessage());
+        }
+
         return redirect()->route('pos.session.report', $session->id)
             ->with('success', 'Sesi kasir ditutup berhasil.');
     }
