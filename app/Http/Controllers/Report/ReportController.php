@@ -35,7 +35,7 @@ class ReportController extends Controller
         $month = $request->month ?? date('m');
         $year = $request->year ?? date('Y');
 
-        $report = $this->reportService->getProfitLossReport($month, $year);
+        $financial = $this->reportService->getProfitLossReport($month, $year);
         $cashierReport = $this->reportService->getCashierReport(
             "{$year}-{$month}-01",
             date('Y-m-t', strtotime("{$year}-{$month}-01"))
@@ -43,7 +43,7 @@ class ReportController extends Controller
 
         $topProducts = $this->stockService->getTopSellingProducts('month', 10);
 
-        return view('reports.financial', compact('report', 'cashierReport', 'topProducts', 'month', 'year'));
+        return view('reports.financial', compact('financial', 'cashierReport', 'topProducts', 'month', 'year'));
     }
 
     public function inventoryIndex(Request $request)
