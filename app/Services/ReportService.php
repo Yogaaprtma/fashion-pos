@@ -71,23 +71,56 @@ class ReportService
 
         $transactions = Transaction::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
             ->where('status', 'completed')
-            ->with('items')
+            ->with('items.productVariant')
             ->get();
 
-        $revenue = $transactions->sum('grand_total');
+        $grossSales = $transactions->sum('subtotal');
+        
+        // Sum returns
+        $returns = \App\Models\ReturnTransaction::whereBetween('approved_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+            ->where('status', 'approved')
+            ->sum('total_refund');
+
+        // Sum discounts (manual + promotions + points)
+        $discounts = $transactions->sum(fn($t) => $t->discount_amount + $t->promotion_discount + $t->point_discount);
+        
+        $netSales = $grossSales - $returns - $discounts;
         $cogs = $transactions->flatMap->items->sum(fn($i) => $i->buy_price * $i->quantity);
-        $discount = $transactions->sum('discount_amount');
         $tax = $transactions->sum('tax_amount');
-        $grossProfit = $revenue - $cogs - $discount;
+        
+        $grossProfit = $netSales - $cogs;
+
+        // Calculate Depreciation (Asset)
+        $assets = \App\Models\Asset::where('condition', '!=', 'disposed')->get();
+        $depreciation = $assets->sum(fn($a) => $a->purchase_price * (($a->depreciation_rate ?? 0) / 100) / 12);
+
+        // Calculate Shrinkage (Opname loss)
+        $opnameItems = \App\Models\StockOpnameItem::whereHas('stockOpname', function ($q) use ($startDate, $endDate) {
+            $q->whereBetween('completed_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+              ->where('status', 'completed');
+        })->where('difference', '<', 0)->with('productVariant')->get();
+        
+        $shrinkage = $opnameItems->sum(fn($i) => abs($i->difference) * ($i->productVariant?->effective_buy_price ?? 0));
+
+        // Operational Expenses (Biaya operasional)
+        $expenses = \App\Models\Expense::whereBetween('expense_date', [$startDate, $endDate])->sum('amount');
+        
+        $netProfit = $grossProfit - $depreciation - $shrinkage - $expenses;
 
         return [
             'period' => date('F Y', strtotime($startDate)),
-            'revenue' => $revenue,
+            'gross_sales' => $grossSales,
+            'returns' => $returns,
+            'discounts' => $discounts,
+            'net_sales' => $netSales,
             'cogs' => $cogs,
-            'discount' => $discount,
             'tax' => $tax,
             'gross_profit' => $grossProfit,
-            'profit_margin' => $revenue > 0 ? ($grossProfit / $revenue) * 100 : 0,
+            'depreciation' => $depreciation,
+            'shrinkage' => $shrinkage,
+            'expenses' => $expenses,
+            'net_profit' => $netProfit,
+            'margin_percentage' => $netSales > 0 ? round(($netProfit / $netSales) * 100, 2) : 0,
         ];
     }
 
