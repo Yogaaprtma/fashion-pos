@@ -7,10 +7,27 @@ use Illuminate\Database\Eloquent\Model;
 class Transaction extends Model
 {
     protected $fillable = [
-        'cashier_session_id', 'invoice_number', 'customer_id', 'subtotal',
-        'discount_amount', 'discount_percent', 'tax_amount', 'tax_percent',
-        'grand_total', 'paid_amount', 'change_amount', 'status',
-        'voided_by', 'voided_at', 'void_reason', 'notes',
+        'cashier_session_id',
+        'invoice_number',
+        'customer_id',
+        'subtotal',
+        'discount_amount',
+        'discount_percent',
+        'tax_amount',
+        'tax_percent',
+        'grand_total',
+        'paid_amount',
+        'change_amount',
+        'status',
+        'voided_by',
+        'voided_at',
+        'void_reason',
+        'notes',
+        'promotion_id',
+        'promotion_discount',
+        'points_earned',
+        'points_used',
+        'point_discount',
     ];
 
     protected $casts = [
@@ -21,6 +38,10 @@ class Transaction extends Model
         'paid_amount' => 'decimal:2',
         'change_amount' => 'decimal:2',
         'voided_at' => 'datetime',
+        'promotion_discount' => 'decimal:2',
+        'point_discount' => 'decimal:2',
+        'points_earned' => 'integer',
+        'points_used' => 'integer',
     ];
 
     public function cashierSession()
@@ -55,7 +76,7 @@ class Transaction extends Model
 
     public function getStatusColorAttribute(): string
     {
-        return match($this->status) {
+        return match ($this->status) {
             'completed' => 'emerald',
             'voided' => 'rose',
             'held' => 'amber',
@@ -66,7 +87,7 @@ class Transaction extends Model
 
     public function getStatusLabelAttribute(): string
     {
-        return match($this->status) {
+        return match ($this->status) {
             'completed' => 'Selesai',
             'voided' => 'Dibatalkan',
             'held' => 'Ditahan',
