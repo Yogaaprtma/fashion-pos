@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#f7f9fc">
     <title>Masuk — FashionPOS</title>
+    <link rel="icon" type="image/png" href="{{ asset('img/logo.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
@@ -1066,11 +1067,7 @@
     <section class="auth-shell" aria-label="Login FashionPOS">
         <aside class="showcase" aria-label="Tentang FashionPOS">
             <a class="brand-mark" href="{{ route('login') }}" aria-label="FashionPOS">
-                <span class="brand-mark__icon">
-                    <svg width="23" height="23" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                        <path d="M8.25 8.25V6a3.75 3.75 0 0 1 7.5 0v2.25M5.35 8.25h13.3l1.1 12.25H4.25L5.35 8.25Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </span>
+                <img src="{{ asset('img/logo.png') }}" alt="FashionPOS Logo" style="width: 38px; height: 38px; border-radius: 10px; object-fit: cover; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
                 <span>
                     <span class="brand-mark__name">Fashion<span>POS</span></span>
                     <span class="brand-mark__caption">Smart retail system</span>
@@ -1140,11 +1137,7 @@
         <div class="login-panel">
             <div class="mobile-brand">
                 <a class="brand-mark" href="{{ route('login') }}" aria-label="FashionPOS">
-                    <span class="brand-mark__icon">
-                        <svg width="23" height="23" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <path d="M8.25 8.25V6a3.75 3.75 0 0 1 7.5 0v2.25M5.35 8.25h13.3l1.1 12.25H4.25L5.35 8.25Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </span>
+                    <img src="{{ asset('img/logo.png') }}" alt="FashionPOS Logo" style="width: 32px; height: 32px; border-radius: 8px; object-fit: cover; box-shadow: 0 4px 10px rgba(0,0,0,0.08);">
                     <span>
                         <span class="brand-mark__name">Fashion<span>POS</span></span>
                         <span class="brand-mark__caption">Smart retail system</span>
