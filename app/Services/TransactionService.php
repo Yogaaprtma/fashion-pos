@@ -10,6 +10,9 @@ use App\Models\StockMovement;
 use App\Models\CashierSession;
 use App\Models\StoreSetting;
 use App\Models\AuditLog;
+use App\Models\Customer;
+use App\Models\CustomerPointHistory;
+use App\Models\Promotion;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
@@ -31,8 +34,13 @@ class TransactionService
 
             $discountAmount = $data['discount_amount'] ?? 0;
             $discountPercent = $data['discount_percent'] ?? 0;
+            $promotionId = $data['promotion_id'] ?? null;
+            $promotionDiscount = $data['promotion_discount'] ?? 0;
+            $pointsUsed = $data['points_used'] ?? 0;
+            $pointDiscount = $data['point_discount'] ?? 0;
 
-            $afterDiscount = $subtotal - $discountAmount;
+            $afterDiscount = $subtotal - $discountAmount - $promotionDiscount - $pointDiscount;
+            $afterDiscount = max(0, $afterDiscount);
             if ($taxPercent > 0) {
                 $taxAmount = $afterDiscount * ($taxPercent / 100);
             }
@@ -49,6 +57,11 @@ class TransactionService
                 'subtotal' => $subtotal,
                 'discount_amount' => $discountAmount,
                 'discount_percent' => $discountPercent,
+                'promotion_id' => $promotionId,
+                'promotion_discount' => $promotionDiscount,
+                'points_used' => $pointsUsed,
+                'point_discount' => $pointDiscount,
+                'points_earned' => 0,
                 'tax_amount' => $taxAmount,
                 'tax_percent' => $taxPercent,
                 'grand_total' => $grandTotal,
@@ -109,14 +122,41 @@ class TransactionService
 
             // Update customer if exists
             if (!empty($data['customer_id'])) {
-                $customer = \App\Models\Customer::find($data['customer_id']);
+                $customer = Customer::find($data['customer_id']);
                 if ($customer) {
                     $customer->increment('total_spent', $grandTotal);
+
+                    if ($pointsUsed > 0) {
+                        $customer->decrement('points', $pointsUsed);
+                        CustomerPointHistory::create([
+                            'customer_id' => $customer->id,
+                            'transaction_id' => $transaction->id,
+                            'amount' => -$pointsUsed,
+                            'type' => 'redeem',
+                            'description' => 'Redeem points for transaction ' . $invoiceNumber,
+                        ]);
+                    }
+
                     // 1 point for every 10,000
                     $pointsEarned = floor($grandTotal / 10000);
                     if ($pointsEarned > 0) {
                         $customer->increment('points', $pointsEarned);
+                        $transaction->update(['points_earned' => $pointsEarned]);
+                        CustomerPointHistory::create([
+                            'customer_id' => $customer->id,
+                            'transaction_id' => $transaction->id,
+                            'amount' => $pointsEarned,
+                            'type' => 'earn',
+                            'description' => 'Earn points from transaction ' . $invoiceNumber,
+                        ]);
                     }
+                }
+            }
+
+            if ($promotionId) {
+                $promo = Promotion::find($promotionId);
+                if ($promo) {
+                    $promo->increment('used_count');
                 }
             }
 
@@ -174,7 +214,7 @@ class TransactionService
     {
         return DB::transaction(function () use ($transaction, $returnData) {
             $returnNumber = 'RET-' . date('Ymd') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
-            
+
             $totalRefund = 0;
             $itemsToReturn = [];
 
@@ -238,7 +278,7 @@ class TransactionService
             }
 
             $transaction->update(['status' => 'partial_return']);
-            
+
             // Adjust session total sales slightly (optional, depending on accounting rules)
             // $transaction->cashierSession->decrement('total_sales', $totalRefund);
 
