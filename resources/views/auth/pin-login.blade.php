@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login PIN Kasir — FashionPOS</title>
+    <link rel="icon" type="image/png" href="{{ asset('img/logo.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;family=Outfit:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet">
@@ -188,11 +189,7 @@
 
         <!-- Logo -->
         <div style="margin-bottom:28px;">
-            <div class="auth-logo-icon">
-                <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="1.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z"/>
-                </svg>
-            </div>
+            <img src="{{ asset('img/logo.png') }}" alt="FashionPOS Logo" style="width: 56px; height: 56px; border-radius: 14px; object-fit: cover; box-shadow: 0 8px 24px rgba(79,70,229,0.25); margin: 0 auto 16px auto; display: block;">
             <h1 style="font-family:var(--font-sans); font-size:22px; font-weight:800; color:var(--text-primary); margin-bottom:6px; letter-spacing:-0.5px">Login PIN Kasir</h1>
             <p style="font-size:13px; color:var(--text-muted);">Masukkan PIN 4-6 digit untuk memulai shift</p>
         </div>
