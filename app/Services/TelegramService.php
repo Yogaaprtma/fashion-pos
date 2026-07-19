@@ -16,17 +16,30 @@ class TelegramService
             return false;
         }
 
-        try {
-            $response = Http::post("https://api.telegram.org/bot{$token}/sendMessage", [
-                'chat_id' => $chatId,
-                'text' => $message,
-                'parse_mode' => 'HTML',
-            ]);
+        // Support multiple chat IDs separated by commas
+        $chatIds = explode(',', $chatId);
+        $success = true;
 
-            return $response->successful();
-        } catch (\Exception $e) {
-            Log::error('Telegram notification failed: ' . $e->getMessage());
-            return false;
+        foreach ($chatIds as $id) {
+            $id = trim($id);
+            if (empty($id)) continue;
+
+            try {
+                $response = Http::post("https://api.telegram.org/bot{$token}/sendMessage", [
+                    'chat_id' => $id,
+                    'text' => $message,
+                    'parse_mode' => 'HTML',
+                ]);
+
+                if (!$response->successful()) {
+                    $success = false;
+                }
+            } catch (\Exception $e) {
+                Log::error("Telegram notification failed for chat {$id}: " . $e->getMessage());
+                $success = false;
+            }
         }
+
+        return $success;
     }
 }
