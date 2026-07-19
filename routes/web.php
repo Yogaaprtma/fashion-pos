@@ -185,6 +185,11 @@ Route::middleware('auth')->group(function () {
     Route::resource('users', UserController::class)->except(['show'])->middleware('permission:user.manage');
 
     // ============================================================
+    // EXPENSE ROUTES (Biaya & Pengeluaran)
+    // ============================================================
+    Route::resource('expenses', \App\Http\Controllers\Finance\ExpenseController::class)->middleware('permission:report.financial');
+
+    // ============================================================
     // SETTINGS (Admin only)
     // ============================================================
     Route::prefix('settings')->name('settings.')->middleware('permission:setting.manage')->group(function () {
