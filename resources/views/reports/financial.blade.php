@@ -165,6 +165,10 @@
                         <td style="padding-left:24px;">Selisih Opname (Shrinkage)</td>
                         <td style="text-align:right;color:var(--color-danger);">(Rp {{ number_format($financial['shrinkage'] ?? 0, 0, ',', '.') }})</td>
                     </tr>
+                    <tr>
+                        <td style="padding-left:24px;">Pengeluaran & Kas Kecil</td>
+                        <td style="text-align:right;color:var(--color-danger);">(Rp {{ number_format($financial['expenses'] ?? 0, 0, ',', '.') }})</td>
+                    </tr>
 
                     <tr style="font-weight:800; font-size:16px; background:linear-gradient(135deg,#4F46E5,#2563EB); color:white;">
                         <td style="border:none;border-radius:0 0 0 0;">LABA BERSIH (NET PROFIT)</td>
