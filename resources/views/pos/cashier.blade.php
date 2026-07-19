@@ -126,6 +126,7 @@
                         <input type="text" id="customerSearch" class="form-control" placeholder="Cari nama / no. telp..." autocomplete="off"
                             oninput="searchCustomer(this.value)" style="height:32px;font-size:12px;padding-right:60px">
                         <div id="selectedCustomerBadge" style="display:none;position:absolute;right:4px;top:4px;background:#4F46E5;color:white;border-radius:6px;padding:2px 8px;font-size:11px;cursor:pointer" onclick="clearCustomer()">✕ hapus</div>
+                        <div id="birthdayNotification" style="display:none;margin-top:6px;font-size:11px;color:#34D399;font-weight:700;">🎉 Ulang Tahun Hari Ini! (Diskon 10% Diterapkan)</div>
                     </div>
                     <div id="customerDropdown" style="display:none;position:absolute;z-index:100;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;width:calc(100% - 32px);margin-top:2px;box-shadow:var(--shadow-lg)"></div>
                 </div>
@@ -875,8 +876,14 @@
             document.getElementById('pointsUsedInput').value = pointsUsed;
             document.getElementById('pointDiscountAmt').value = pointDiscount;
 
+            // 4. Birthday Discount (10% auto discount)
+            let birthdayDiscount = 0;
+            if (selectedCustomer && selectedCustomer.is_birthday) {
+                birthdayDiscount = subtotal * 0.10;
+            }
+
             // Grand Total Calculations
-            const totalDiscount = manualDiscount + promoDiscount + pointDiscount;
+            const totalDiscount = manualDiscount + promoDiscount + pointDiscount + birthdayDiscount;
             const afterDiscount = Math.max(0, subtotal - totalDiscount);
             const tax = TAX_ENABLED ? afterDiscount * (TAX_PERCENT / 100) : 0;
             const grandTotal = afterDiscount + tax;
@@ -1075,6 +1082,13 @@
             const discountPct = parseFloat(document.getElementById('discountPercent').value) || 0;
             const customerId = document.getElementById('selectedCustomerId').value || null;
 
+            // Birthday Discount calculation
+            let birthdayDiscount = 0;
+            if (selectedCustomer && selectedCustomer.is_birthday) {
+                const subtotal = cart.reduce((s, i) => s + i.unit_price * i.quantity - i.discount_amount, 0);
+                birthdayDiscount = subtotal * 0.10;
+            }
+
             let payments = [];
             let change = 0;
 
@@ -1117,7 +1131,7 @@
                     discount_amount: i.discount_amount,
                 })),
                 payments,
-                discount_amount: discountAmt,
+                discount_amount: discountAmt + birthdayDiscount,
                 discount_percent: discountPct,
                 promotion_id: activeCoupon ? activeCoupon.id : null,
                 promotion_discount: activeCoupon ? (parseFloat(document.getElementById('promotionDiscountAmt').value) || 0) : 0,
@@ -1248,6 +1262,12 @@
             document.getElementById('selectedCustomerBadge').style.display = 'block';
             document.getElementById('customerDropdown').style.display = 'none';
 
+            if (c.is_birthday) {
+                document.getElementById('birthdayNotification').style.display = 'block';
+            } else {
+                document.getElementById('birthdayNotification').style.display = 'none';
+            }
+
             if (c.is_member && c.points > 0) {
                 document.getElementById('loyaltyPointsGroup').style.display = 'flex';
                 document.getElementById('availablePointsDisplay').textContent = c.points;
@@ -1265,6 +1285,7 @@
             document.getElementById('customerSearch').value = '';
             document.getElementById('selectedCustomerBadge').style.display = 'none';
             document.getElementById('customerDropdown').style.display = 'none';
+            document.getElementById('birthdayNotification').style.display = 'none';
 
             document.getElementById('loyaltyPointsGroup').style.display = 'none';
             document.getElementById('usePointsCheckbox').checked = false;
