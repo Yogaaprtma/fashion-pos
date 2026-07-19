@@ -222,6 +222,7 @@
                     <span class="nav-label">Biaya & Pengeluaran</span>
                 </a>
                 @endif
+                @endif
 
                 <!-- LAPORAN -->
                 @if(auth()->user()->canAccess('report.sales'))
