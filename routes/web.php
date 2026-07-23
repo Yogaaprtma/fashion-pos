@@ -172,11 +172,21 @@ Route::middleware('auth')->group(function () {
     // ============================================================
     Route::prefix('customers')->name('customers.')->middleware('permission:customer.manage')->group(function () {
         Route::get('/search', [\App\Http\Controllers\CustomerController::class, 'search'])->name('search');
-        Route::resource('/', \App\Http\Controllers\CustomerController::class)->parameters(['' => 'customer']);
 
-        // Customer Debts (Piutang / Kasbon)
+        // Customer Debts (Piutang / Kasbon) - must be before resource to avoid {customer} wildcard match
         Route::get('/debts', [\App\Http\Controllers\POS\DebtController::class, 'customersIndex'])->name('debts.customers.index');
         Route::post('/debts/{transaction}/pay', [\App\Http\Controllers\POS\DebtController::class, 'payCustomerDebt'])->name('debts.customers.pay');
+
+        Route::resource('/', \App\Http\Controllers\CustomerController::class)->parameters(['' => 'customer']);
+    });
+
+    // ============================================================
+    // LOYALTY POINTS ROUTES
+    // ============================================================
+    Route::prefix('loyalty')->name('loyalty.')->middleware('permission:customer.manage')->group(function () {
+        Route::get('/', [\App\Http\Controllers\LoyaltyController::class, 'index'])->name('index');
+        Route::get('/{customer}', [\App\Http\Controllers\LoyaltyController::class, 'show'])->name('show');
+        Route::post('/{customer}/adjust', [\App\Http\Controllers\LoyaltyController::class, 'adjust'])->name('adjust');
     });
 
     // ============================================================
