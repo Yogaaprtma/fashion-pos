@@ -13,6 +13,17 @@ class CustomerController extends Controller
         return view('customers.index', compact('customers'));
     }
 
+    public function create()
+    {
+        return redirect()->route('customers.index');
+    }
+
+    public function show(Customer $customer)
+    {
+        // Redirect ke index; detail ditampilkan via modal
+        return redirect()->route('customers.index');
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
