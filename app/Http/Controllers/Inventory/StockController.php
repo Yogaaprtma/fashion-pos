@@ -38,16 +38,17 @@ class StockController extends Controller
 
     public function lowStock()
     {
-        $products = $this->stockService->getLowStockProducts();
-        $variants = collect();
-        foreach($products as $product) {
-            foreach($product->variants as $variant) {
-                if ($variant->stock_qty <= $product->min_stock) {
-                    $variants->push($variant);
-                }
-            }
-        }
-        return view('inventory.stock.low', compact('variants'));
+        $lowStockProducts = \App\Models\Product::with(['variants' => fn($q) => $q->orderBy('stock_qty')])
+            ->get()
+            ->filter(fn($p) => $p->isLowStock())
+            ->sortBy(fn($p) => $p->variants->min('stock_qty'))
+            ->values();
+
+        $outOfStockCount    = \App\Models\ProductVariant::where('stock_qty', 0)->count();
+        $criticalCount      = \App\Models\ProductVariant::where('stock_qty', '>', 0)->where('stock_qty', '<=', 3)->count();
+        $lowCount           = \App\Models\ProductVariant::where('stock_qty', '>', 3)->where('stock_qty', '<=', 10)->count();
+
+        return view('inventory.stock.low', compact('lowStockProducts', 'outOfStockCount', 'criticalCount', 'lowCount'));
     }
 
     public function adjust(Request $request)
