@@ -1242,19 +1242,60 @@ tbody td {
 /* ============================================================
    PAGINATION
    ============================================================ */
+/* Legacy class fallback */
 .pagination {
     display: flex;
     align-items: center;
     gap: 4px;
     flex-wrap: wrap;
 }
-
 .pagination a, .pagination span {
+    display: flex; align-items: center; justify-content: center;
+    width: 36px; height: 36px; border-radius: var(--radius-md);
+    font-size: 13px; font-weight: 600; text-decoration: none;
+    transition: var(--transition); border: 1px solid var(--border);
+    color: var(--text-secondary); background: var(--bg-elevated);
+}
+.pagination a:hover { background: var(--bg-hover); color: var(--text-primary); border-color: var(--border-strong); }
+.pagination .active span {
+    background: linear-gradient(135deg, var(--color-primary), #9333EA);
+    color: white; border-color: transparent;
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
+}
+
+/* Custom Pagination Nav */
+.pagination-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+.pagination-info {
+    font-size: 13px;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+.pagination-info strong {
+    font-weight: 700;
+    color: var(--text-primary);
+}
+.pagination-list {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.pagination-item {}
+.pagination-link {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 36px;
+    min-width: 36px;
     height: 36px;
+    padding: 0 8px;
     border-radius: var(--radius-md);
     font-size: 13px;
     font-weight: 600;
@@ -1263,15 +1304,35 @@ tbody td {
     border: 1px solid var(--border);
     color: var(--text-secondary);
     background: var(--bg-elevated);
+    cursor: pointer;
+    gap: 4px;
+    line-height: 1;
 }
-
-.pagination a:hover { background: var(--bg-hover); color: var(--text-primary); border-color: var(--border-strong); }
-.pagination .active {
+.pagination-link svg { flex-shrink: 0; }
+.pagination-link:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+    border-color: var(--border-strong);
+}
+.pagination-item.active .pagination-link {
     background: linear-gradient(135deg, var(--color-primary), #9333EA);
     color: white;
     border-color: transparent;
-    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.35);
 }
+.pagination-item.disabled .pagination-link {
+    opacity: 0.38;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+.pagination-dots {
+    color: var(--text-muted);
+    border-color: transparent;
+    background: transparent;
+    font-size: 16px;
+    letter-spacing: 2px;
+}
+
 
 /* ============================================================
    EMPTY STATE
