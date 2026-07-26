@@ -27,9 +27,8 @@
             <div style="font-size:20px; font-weight:800;">{{ $customer->name }}</div>
             <div style="opacity:0.8; font-size:13px; margin-top:2px;">{{ $customer->phone ?? 'Tidak ada nomor' }}</div>
             <div style="margin-top:6px;">
-                @php $tier = $customer->member_tier; @endphp
                 <span style="background:rgba(255,255,255,0.25); padding:3px 10px; border-radius:20px; font-size:12px; font-weight:700;">
-                    {{ $tier === 'Gold' ? '🥇' : ($tier === 'Silver' ? '🥈' : '🥉') }} {{ $tier }} Member
+                    <x-loyalty-tier :points="$customer->points ?? 0" style="color:white; font-weight:bold; font-size:12px;" /> Member
                 </span>
             </div>
         </div>
