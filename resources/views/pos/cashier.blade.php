@@ -53,6 +53,14 @@
                     Barcode
                 </button>
 
+                <!-- Customer Display button -->
+                <a href="{{ route('pos.cds') }}" target="_blank" class="btn btn-sm btn-secondary" style="background:#3B82F6; color:white; border-color:#2563EB;" title="Buka Layar Pelanggan di Tab Baru">
+                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    Layar Pelanggan
+                </a>
+
                 <!-- Session Info -->
                 <div style="display:flex;align-items:center;gap:10px;padding:8px 14px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);border-radius:10px;font-size:12px;color:#34D399">
                     <span style="width:7px;height:7px;border-radius:50%;background:#34D399;animation:pulse-dot 2s infinite"></span>
@@ -417,18 +425,8 @@
         // ==========================================================
         // STATE
         // ==========================================================
-        const TAX_ENABLED = {
-            {
-                \
-                App\ Models\ StoreSetting::get('tax_enabled', '0') === '1' ? 'true' : 'false'
-            }
-        };
-        const TAX_PERCENT = {
-            {
-                \
-                App\ Models\ StoreSetting::get('tax_percent', '11')
-            }
-        };
+        const TAX_ENABLED = {{ \App\Models\StoreSetting::get('tax_enabled', '0') === '1' ? 'true' : 'false' }};
+        const TAX_PERCENT = {{ \App\Models\StoreSetting::get('tax_percent', '11') }};
         const CSRF = document.querySelector('meta[name="csrf-token"]').content;
 
         let cart = [];
@@ -483,6 +481,19 @@
             }
         }
 
+        window.productsMap = {};
+
+        function getProductIcon(name) {
+            const n = (name || '').toLowerCase();
+            if (n.includes('celana') || n.includes('chino') || n.includes('jeans') || n.includes('short') || n.includes('rok')) return '👖';
+            if (n.includes('topi') || n.includes('cap') || n.includes('hat')) return '🧢';
+            if (n.includes('jaket') || n.includes('hoodie') || n.includes('sweater') || n.includes('cardigan')) return '🧥';
+            if (n.includes('sepatu') || n.includes('shoe') || n.includes('sneaker')) return '👟';
+            if (n.includes('tas') || n.includes('bag') || n.includes('dompet')) return '🎒';
+            if (n.includes('aksesoris') || n.includes('kacamata')) return '🕶️';
+            return '👕';
+        }
+
         function renderProducts(products) {
             const grid = document.getElementById('productGrid');
             if (!products.length) {
@@ -493,14 +504,17 @@
                 return;
             }
 
+            products.forEach(p => window.productsMap[p.id] = p);
+
             grid.innerHTML = products.map(p => {
                 const totalStock = p.variants.reduce((s, v) => s + v.stock_qty, 0);
                 const minPrice = Math.min(...p.variants.map(v => v.sell_price));
                 const maxPrice = Math.max(...p.variants.map(v => v.sell_price));
                 const priceStr = minPrice === maxPrice ? formatCurrency(minPrice) : `${formatCurrency(minPrice)}+`;
-                const img = p.image_url ? `<img src="${p.image_url}" alt="${p.name}" loading="lazy">` : `<span style="font-size:40px">👕</span>`;
+                const icon = getProductIcon(p.name);
+                const img = p.image_url ? `<img src="${p.image_url}" alt="${p.name}" loading="lazy" onerror="this.outerHTML='<span style=\\'font-size:40px\\'>${icon}</span>'">` : `<span style="font-size:40px">${icon}</span>`;
 
-                return `<div class="product-card" onclick="openProduct(${JSON.stringify(p).replace(/'/g, "\\'")})" title="${p.name}">
+                return `<div class="product-card" onclick="openProductById(${p.id})" title="${p.name}">
                 <div class="product-card-img">${img}</div>
                 <div class="product-card-body">
                     <div class="product-card-name">${p.name}</div>
@@ -509,6 +523,11 @@
                 </div>
             </div>`;
             }).join('');
+        }
+
+        function openProductById(id) {
+            const product = window.productsMap[id];
+            if (product) openProduct(product);
         }
 
         // ==========================================================
@@ -635,16 +654,17 @@
 
         function renderCart() {
             const container = document.getElementById('cartItems');
-            const emptyState = document.getElementById('emptyCart');
 
             if (cart.length === 0) {
-                container.innerHTML = '';
-                container.appendChild(emptyState || createEmptyState());
-                emptyState.style.display = '';
+                container.innerHTML = `<div id="emptyCart" style="text-align:center;padding:40px 20px;color:var(--text-muted)">
+                    <div style="font-size:36px;margin-bottom:8px">🛒</div>
+                    <div>Keranjang belanja kosong</div>
+                </div>`;
                 document.getElementById('cartCount').textContent = '0';
                 document.getElementById('clearBtn').disabled = true;
                 document.getElementById('holdBtn').disabled = true;
                 document.getElementById('payBtn').disabled = true;
+                syncCDSToLocalStorage(0);
                 return;
             }
 
@@ -892,6 +912,25 @@
             document.getElementById('sumDiscount').textContent = `- ${formatCurrency(totalDiscount)}`;
             if (document.getElementById('sumTax')) document.getElementById('sumTax').textContent = formatCurrency(tax);
             document.getElementById('sumTotal').textContent = formatCurrency(grandTotal);
+            
+            // Sync to Customer Display System (CDS)
+            syncCDSToLocalStorage(grandTotal);
+        }
+
+        function syncCDSToLocalStorage(grandTotal) {
+            try {
+                const cdsCart = cart.map(item => ({
+                    name: item.name,
+                    variant_name: item.variant_label,
+                    qty: item.quantity,
+                    price: item.unit_price - Math.floor(item.discount_amount / Math.max(item.quantity, 1))
+                }));
+                localStorage.setItem('cds_cart', JSON.stringify(cdsCart));
+                localStorage.setItem('cds_total', grandTotal);
+                localStorage.setItem('cds_customer', selectedCustomer ? selectedCustomer.name : '-');
+            } catch (e) {
+                console.warn('LocalStorage error:', e);
+            }
         }
 
         function discountPercentChange() {
@@ -927,6 +966,12 @@
             document.getElementById('modeSplitBtn').className = 'btn btn-secondary';
             document.getElementById('singlePaySection').style.display = 'block';
             document.getElementById('splitPaySection').style.display = 'none';
+
+            // Auto select Cash (first method) by default
+            const firstPm = document.querySelector('.payment-method-btn');
+            if (firstPm) {
+                selectPaymentMethod(firstPm);
+            }
 
             // Generate quick amount buttons
             const quickDiv = document.getElementById('quickAmounts');
@@ -1078,9 +1123,9 @@
 
         async function processPayment() {
             const total = getGrandTotal();
-            const discountAmt = parseFloat(document.getElementById('discountAmount').value) || 0;
-            const discountPct = parseFloat(document.getElementById('discountPercent').value) || 0;
-            const customerId = document.getElementById('selectedCustomerId').value || null;
+            const discountAmt = parseFloat(document.getElementById('discountAmount')?.value) || 0;
+            const discountPct = parseFloat(document.getElementById('discountPercent')?.value) || 0;
+            const customerId = document.getElementById('selectedCustomerId')?.value || null;
 
             // Birthday Discount calculation
             let birthdayDiscount = 0;
@@ -1093,11 +1138,17 @@
             let change = 0;
 
             if (paymentMode === 'single') {
+                if (!selectedPaymentMethod) {
+                    showToast('Silakan pilih metode pembayaran terlebih dahulu!', 'warning');
+                    return;
+                }
+
                 const isCash = selectedPaymentMethod?.type === 'cash';
                 const isTempo = selectedPaymentMethod?.type === 'tempo';
                 const isCashOrTempo = isCash || isTempo;
 
-                const paid = isCashOrTempo ? parseFloat(document.getElementById('cashInput').value) : total;
+                const cashInputEl = document.getElementById('cashInput');
+                const paid = isCashOrTempo ? (parseFloat(cashInputEl?.value) || 0) : total;
                 change = isCash ? paid - total : 0;
 
                 if (isTempo && !customerId) {
@@ -1114,9 +1165,11 @@
             } else {
                 // Split payment
                 [...document.querySelectorAll('#splitPaymentRows > div')].forEach(row => {
-                    const methodId = parseInt(row.querySelector('.split-method').value);
-                    const amount = parseFloat(row.querySelector('.split-amount').value) || 0;
-                    if (amount > 0) payments.push({
+                    const methodEl = row.querySelector('.split-method');
+                    const amountEl = row.querySelector('.split-amount');
+                    const methodId = parseInt(methodEl?.value || 0);
+                    const amount = parseFloat(amountEl?.value || 0);
+                    if (amount > 0 && methodId > 0) payments.push({
                         payment_method_id: methodId,
                         amount
                     });
@@ -1134,15 +1187,18 @@
                 discount_amount: discountAmt + birthdayDiscount,
                 discount_percent: discountPct,
                 promotion_id: activeCoupon ? activeCoupon.id : null,
-                promotion_discount: activeCoupon ? (parseFloat(document.getElementById('promotionDiscountAmt').value) || 0) : 0,
-                points_used: parseInt(document.getElementById('pointsUsedInput').value) || 0,
-                point_discount: parseFloat(document.getElementById('pointDiscountAmt').value) || 0,
-                notes: document.getElementById('notesInput').value,
+                promotion_discount: activeCoupon ? (parseFloat(document.getElementById('promotionDiscountAmt')?.value) || 0) : 0,
+                points_used: parseInt(document.getElementById('pointsUsedInput')?.value) || 0,
+                point_discount: parseFloat(document.getElementById('pointDiscountAmt')?.value) || 0,
+                notes: document.getElementById('notesInput')?.value || null,
                 customer_id: customerId,
             };
 
-            document.getElementById('processPayBtn').disabled = true;
-            document.getElementById('processPayBtn').textContent = 'Memproses...';
+            const payBtn = document.getElementById('processPayBtn');
+            if (payBtn) {
+                payBtn.disabled = true;
+                payBtn.textContent = 'Memproses...';
+            }
 
             try {
                 const resp = await fetch('/pos/transaction', {
@@ -1165,19 +1221,23 @@
                     cart = [];
                     clearCustomer();
                     removeCoupon();
-                    document.getElementById('discountAmount').value = '';
-                    document.getElementById('discountPercent').value = '';
-                    document.getElementById('notesInput').value = '';
+                    const elDiscAmt = document.getElementById('discountAmount'); if (elDiscAmt) elDiscAmt.value = '';
+                    const elDiscPct = document.getElementById('discountPercent'); if (elDiscPct) elDiscPct.value = '';
+                    const elNotes = document.getElementById('notesInput'); if (elNotes) elNotes.value = '';
                     renderCart();
                 } else {
                     showToast(data.error || 'Terjadi kesalahan', 'error');
-                    document.getElementById('processPayBtn').disabled = false;
-                    document.getElementById('processPayBtn').textContent = '✓ Proses Pembayaran';
+                    if (payBtn) {
+                        payBtn.disabled = false;
+                        payBtn.textContent = '✓ Proses Pembayaran';
+                    }
                 }
             } catch (e) {
                 showToast('Gagal menghubungi server', 'error');
-                document.getElementById('processPayBtn').disabled = false;
-                document.getElementById('processPayBtn').textContent = '✓ Proses Pembayaran';
+                if (payBtn) {
+                    payBtn.disabled = false;
+                    payBtn.textContent = '✓ Proses Pembayaran';
+                }
             }
         }
 
@@ -1215,6 +1275,15 @@
         function newTransaction() {
             document.getElementById('receiptModal').style.display = 'none';
             lastTransactionId = null;
+            lastTransactionInvoice = null;
+            cart = [];
+            clearCustomer();
+            removeCoupon();
+            resetQrisSection();
+            const elDiscAmt = document.getElementById('discountAmount'); if (elDiscAmt) elDiscAmt.value = '';
+            const elDiscPct = document.getElementById('discountPercent'); if (elDiscPct) elDiscPct.value = '';
+            const elNotes = document.getElementById('notesInput'); if (elNotes) elNotes.value = '';
+            renderCart();
             focusSearch();
         }
 
@@ -1239,12 +1308,11 @@
                 });
                 const customers = await resp.json();
                 const dd = document.getElementById('customerDropdown');
-                if (!customers.length) {
-                    dd.style.display = 'none';
-                    return;
-                }
+                window.customersMap = window.customersMap || {};
+                customers.forEach(c => window.customersMap[c.id] = c);
+
                 dd.innerHTML = customers.map(c => `
-                <div onclick="selectCustomer(${JSON.stringify(c).replace(/"/g, '&quot;')})" style="padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--border);font-size:13px" onmouseover="this.style.background='var(--bg-elevated)'" onmouseout="this.style.background=''">
+                <div onclick="selectCustomerById(${c.id})" style="padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--border);font-size:13px" onmouseover="this.style.background='var(--bg-elevated)'" onmouseout="this.style.background=''">
                     <strong>${c.name}</strong>
                     <span style="color:var(--text-muted);margin-left:8px">${c.phone || ''}</span>
                     ${c.is_member ? '<span style="margin-left:8px;font-size:10px;background:#4F46E5;color:white;border-radius:4px;padding:1px 6px">MEMBER</span>' : ''}
@@ -1253,6 +1321,11 @@
             `).join('');
                 dd.style.display = 'block';
             }, 300);
+        }
+
+        function selectCustomerById(id) {
+            const c = window.customersMap[id];
+            if (c) selectCustomer(c);
         }
 
         function selectCustomer(c) {
@@ -1281,16 +1354,16 @@
 
         function clearCustomer() {
             selectedCustomer = null;
-            document.getElementById('selectedCustomerId').value = '';
-            document.getElementById('customerSearch').value = '';
-            document.getElementById('selectedCustomerBadge').style.display = 'none';
-            document.getElementById('customerDropdown').style.display = 'none';
-            document.getElementById('birthdayNotification').style.display = 'none';
+            const elId = document.getElementById('selectedCustomerId'); if (elId) elId.value = '';
+            const elSearch = document.getElementById('customerSearch'); if (elSearch) elSearch.value = '';
+            const elBadge = document.getElementById('selectedCustomerBadge'); if (elBadge) elBadge.style.display = 'none';
+            const elDd = document.getElementById('customerDropdown'); if (elDd) elDd.style.display = 'none';
+            const elBday = document.getElementById('birthdayNotification'); if (elBday) elBday.style.display = 'none';
 
-            document.getElementById('loyaltyPointsGroup').style.display = 'none';
-            document.getElementById('usePointsCheckbox').checked = false;
-            document.getElementById('pointsUsedInput').value = '0';
-            document.getElementById('pointDiscountAmt').value = '0';
+            const elLp = document.getElementById('loyaltyPointsGroup'); if (elLp) elLp.style.display = 'none';
+            const elCb = document.getElementById('usePointsCheckbox'); if (elCb) elCb.checked = false;
+            const elPu = document.getElementById('pointsUsedInput'); if (elPu) elPu.value = '0';
+            const elPd = document.getElementById('pointDiscountAmt'); if (elPd) elPd.value = '0';
             recalculate();
         }
 
@@ -1410,14 +1483,16 @@
                 document.querySelectorAll('.modal-overlay').forEach(m => {
                     if (m.style.display === 'flex') m.style.display = 'none';
                 });
-                document.getElementById('customerDropdown').style.display = 'none';
+                const dd = document.getElementById('customerDropdown');
+                if (dd) dd.style.display = 'none';
             }
         });
 
         // Close dropdown when clicking outside
         document.addEventListener('click', e => {
             if (!e.target.closest('#customerSearch') && !e.target.closest('#customerDropdown')) {
-                document.getElementById('customerDropdown').style.display = 'none';
+                const dd = document.getElementById('customerDropdown');
+                if (dd) dd.style.display = 'none';
             }
         });
 
@@ -1489,8 +1564,9 @@
     `;
         document.head.appendChild(style);
 
-        // Load products on start
+        // Load products and init cart on start
         searchProducts('');
+        renderCart();
     </script>
 </body>
 
