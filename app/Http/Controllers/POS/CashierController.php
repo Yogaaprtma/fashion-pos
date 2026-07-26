@@ -37,6 +37,12 @@ class CashierController extends Controller
         return view('pos.cashier', compact('session', 'paymentMethods', 'categories', 'storeName'));
     }
 
+    public function cds()
+    {
+        $storeName = StoreSetting::get('store_name', 'FashionPOS');
+        return view('pos.cds', compact('storeName'));
+    }
+
     public function openSession()
     {
         // Check if already has open session
