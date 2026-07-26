@@ -10,10 +10,50 @@ use App\Models\Category;
 use App\Services\StockService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\ProductsImport;
 
 class ProductController extends Controller
 {
     public function __construct(private StockService $stockService) {}
+
+    public function importExcel(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv|max:2048'
+        ]);
+
+        try {
+            Excel::import(new ProductsImport, $request->file('file'));
+            return back()->with('success', 'Produk berhasil diimpor!');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal mengimpor data: ' . $e->getMessage());
+        }
+    }
+
+    public function downloadTemplate()
+    {
+        $filename = 'template-import-produk.csv';
+        $headers = [
+            'Content-type'        => 'text/csv',
+            'Content-Disposition' => 'attachment; filename=' . $filename,
+        ];
+        
+        $columns = ['nama_produk', 'kategori', 'merk', 'deskripsi', 'harga_beli', 'harga_jual', 'minimum_stok', 'sku_induk', 'ukuran', 'warna', 'sku_varian', 'stok_awal'];
+        
+        $callback = function() use($columns) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns);
+            
+            // Contoh baris data
+            fputcsv($file, ['Kemeja Flanel', 'Pakaian Pria', 'Brand X', 'Bahan halus', 100000, 150000, 5, 'KFL-001', 'L', 'Merah', 'KFL-001-L-RED', 10]);
+            fputcsv($file, ['Kemeja Flanel', 'Pakaian Pria', 'Brand X', 'Bahan halus', 100000, 150000, 5, 'KFL-001', 'XL', 'Biru', 'KFL-001-XL-BLU', 5]);
+            
+            fclose($file);
+        };
+        
+        return response()->stream($callback, 200, $headers);
+    }
 
     public function index(Request $request)
     {
