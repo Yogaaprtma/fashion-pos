@@ -103,10 +103,7 @@
                         <div style="font-size:12px; color:var(--text-muted);">{{ $customer->phone ?? 'Tidak ada nomor' }}</div>
                     </td>
                     <td>
-                        @php $tier = $customer->member_tier; @endphp
-                        <span style="font-weight:700; color:{{ $customer->member_tier_color }}; font-size:13px;">
-                            {{ $tier === 'Gold' ? '🥇' : ($tier === 'Silver' ? '🥈' : '🥉') }} {{ $tier }}
-                        </span>
+                        <x-loyalty-tier :points="$customer->points ?? 0" />
                     </td>
                     <td style="text-align:right;">
                         <span style="font-size:16px; font-weight:800; color:var(--color-primary);">
