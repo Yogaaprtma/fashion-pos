@@ -52,6 +52,7 @@ Route::middleware('auth')->group(function () {
     // ============================================================
     Route::prefix('pos')->name('pos.')->middleware('permission:pos.access')->group(function () {
         Route::get('/', [CashierController::class, 'index'])->name('index');
+        Route::get('/cds', [CashierController::class, 'cds'])->name('cds');
 
         // Session management
         Route::get('/session/open', [CashierController::class, 'openSession'])->name('session.open');
@@ -89,6 +90,8 @@ Route::middleware('auth')->group(function () {
     // ============================================================
     Route::prefix('inventory')->name('inventory.')->middleware('permission:inventory.view')->group(function () {
         Route::get('/barcode-generator', [ProductController::class, 'barcodeGenerator'])->name('barcode-generator');
+        Route::post('/products/import', [ProductController::class, 'importExcel'])->name('products.import');
+        Route::get('/products/download-template', [ProductController::class, 'downloadTemplate'])->name('products.download-template');
         Route::resource('products', ProductController::class);
         Route::post('/products/{product}/upload-image', [ProductController::class, 'uploadImage'])->name('products.upload-image');
         Route::delete('/products/{product}/delete-image/{image}', [ProductController::class, 'deleteImage'])->name('products.delete-image');
