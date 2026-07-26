@@ -463,6 +463,10 @@
                 <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" /></svg>
                 Cetak Barcode
             </a>
+            <button onclick="document.getElementById('importModal').style.display='flex'" class="btn btn-secondary" style="background:#10B981; color:white; border-color:#059669;">
+                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                Import Excel
+            </button>
             <a href="{{ route('inventory.products.create') }}" class="btn btn-primary">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
                 Tambah Produk
@@ -648,4 +652,38 @@
         @endif
     </section>
 </div>
+
+{{-- Import Modal --}}
+<div class="modal-overlay" id="importModal" style="display:none; z-index:100;">
+    <div class="modal" style="max-width:500px;">
+        <div class="modal-header">
+            <h3 class="modal-title">📥 Import Produk via Excel</h3>
+            <button class="modal-close" onclick="document.getElementById('importModal').style.display='none'">&times;</button>
+        </div>
+        <form action="{{ route('inventory.products.import') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            <div class="modal-body">
+                <div style="background:var(--bg-hover); border-radius:var(--radius-md); padding:16px; margin-bottom:20px; font-size:13px; color:var(--text-secondary);">
+                    <p style="margin-bottom:8px;">Pastikan format file Anda sesuai dengan template standar kami untuk menghindari error saat import.</p>
+                    <a href="{{ route('inventory.products.download-template') }}" class="btn btn-sm btn-outline-primary" style="display:inline-flex; align-items:center; gap:6px;">
+                        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                        Download Template CSV
+                    </a>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Upload File (Excel/CSV)</label>
+                    <div style="border:2px dashed var(--border); border-radius:var(--radius-lg); padding:30px; text-align:center; background:#FAFBFF;">
+                        <input type="file" name="file" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" required style="max-width:100%;">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="display:flex; justify-content:flex-end; gap:12px;">
+                <button type="button" class="btn btn-ghost" onclick="document.getElementById('importModal').style.display='none'">Batal</button>
+                <button type="submit" class="btn btn-primary" style="background:#10B981; border-color:#059669;">Mulai Import</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 @endsection
