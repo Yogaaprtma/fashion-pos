@@ -51,13 +51,13 @@ class Product extends Model
         return $this->getTotalStockAttribute() <= $this->min_stock;
     }
 
-    public function getImageUrlAttribute(): string
+    public function getImageUrlAttribute(): ?string
     {
         $primary = $this->images()->where('is_primary', true)->first();
         if ($primary) {
             return asset('storage/' . $primary->image_path);
         }
-        return asset('images/no-product.png');
+        return null;
     }
 
     public static function boot()
