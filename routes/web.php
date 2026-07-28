@@ -96,6 +96,14 @@ Route::middleware('auth')->group(function () {
         Route::post('/products/{product}/upload-image', [ProductController::class, 'uploadImage'])->name('products.upload-image');
         Route::delete('/products/{product}/delete-image/{image}', [ProductController::class, 'deleteImage'])->name('products.delete-image');
 
+        // Barcode Labels
+        Route::get('/barcode-labels', [\App\Http\Controllers\Inventory\BarcodeLabelController::class, 'index'])->name('barcode-labels.index');
+        Route::post('/barcode-labels/print', [\App\Http\Controllers\Inventory\BarcodeLabelController::class, 'print'])->name('barcode-labels.print');
+
+        // Product Bundles / Kitting
+        Route::get('/bundles/search', [\App\Http\Controllers\Inventory\ProductBundleController::class, 'searchBundles'])->name('bundles.search');
+        Route::resource('bundles', \App\Http\Controllers\Inventory\ProductBundleController::class);
+
         // Categories
         Route::get('/categories', [\App\Http\Controllers\Inventory\CategoryController::class, 'index'])->name('categories.index');
         Route::post('/categories', [\App\Http\Controllers\Inventory\CategoryController::class, 'store'])->name('categories.store');
@@ -149,6 +157,7 @@ Route::middleware('auth')->group(function () {
     // ============================================================
     Route::prefix('reports')->name('reports.')->middleware('permission:report.sales')->group(function () {
         Route::get('/sales', [ReportController::class, 'salesIndex'])->name('sales');
+        Route::get('/commission', [ReportController::class, 'commissionIndex'])->name('commission');
         Route::get('/sales/export-pdf', [ReportController::class, 'exportSalesPdf'])->name('sales.export-pdf');
         Route::get('/sales/export-excel', [ReportController::class, 'exportSalesExcel'])->name('sales.export-excel');
         Route::get('/cashier', [ReportController::class, 'cashierReport'])->name('cashier');
