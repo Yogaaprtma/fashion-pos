@@ -53,6 +53,14 @@
                     Barcode
                 </button>
 
+                <!-- Bundle Search button -->
+                <button class="btn btn-sm btn-secondary" id="bundleSearchBtn"
+                    onclick="toggleBundleMode()"
+                    style="background:rgba(16,185,129,0.12);border-color:rgba(16,185,129,0.4);color:#059669;"
+                    title="Cari Produk Paket / Bundling">
+                    📦 Paket
+                </button>
+
                 <!-- Customer Display button -->
                 <a href="{{ route('pos.cds') }}" target="_blank" class="btn btn-sm btn-secondary" style="background:#3B82F6; color:white; border-color:#2563EB;" title="Buka Layar Pelanggan di Tab Baru">
                     <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -139,6 +147,17 @@
                     <div id="customerDropdown" style="display:none;position:absolute;z-index:100;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;width:calc(100% - 32px);margin-top:2px;box-shadow:var(--shadow-lg)"></div>
                 </div>
                 <input type="hidden" id="selectedCustomerId" value="">
+
+                <!-- SPG / Salesperson Selector -->
+                <div style="padding:8px 12px;border-bottom:1px solid var(--border);background:var(--bg-elevated)">
+                    <div style="font-size:11px;color:var(--text-muted);font-weight:600;margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px">👩‍💼 SPG / Pramuniaga</div>
+                    <select id="salespersonSelect" class="form-control" style="height:32px;font-size:12px">
+                        <option value="">-- Tanpa SPG / Kasir Langsung --</option>
+                        @foreach($salespersons as $spg)
+                            <option value="{{ $spg->id }}">{{ $spg->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
 
                 <div class="empty-state" style="padding:40px 20px" id="emptyCart">
                     <div class="empty-state-icon">🛒</div>
@@ -452,7 +471,105 @@
 
         function debounceSearch(val) {
             clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => searchProducts(val), 300);
+            if (bundleMode) {
+                searchTimeout = setTimeout(() => searchBundles(val), 300);
+            } else {
+                searchTimeout = setTimeout(() => searchProducts(val), 300);
+            }
+        }
+
+        // ---- BUNDLE MODE ----
+        let bundleMode = false;
+        function toggleBundleMode() {
+            bundleMode = !bundleMode;
+            const btn = document.getElementById('bundleSearchBtn');
+            const input = document.getElementById('searchInput');
+            if (bundleMode) {
+                btn.style.background = '#059669';
+                btn.style.color = 'white';
+                btn.style.borderColor = '#059669';
+                input.placeholder = '📦 Cari Nama / SKU Paket Produk...';
+                input.focus();
+                searchBundles('');
+            } else {
+                btn.style.background = 'rgba(16,185,129,0.12)';
+                btn.style.color = '#059669';
+                btn.style.borderColor = 'rgba(16,185,129,0.4)';
+                input.placeholder = 'Cari produk, SKU, scan barcode... (F2)';
+                searchProducts('');
+            }
+        }
+
+        async function searchBundles(q) {
+            const grid = document.getElementById('productGrid');
+            grid.innerHTML = '<div style="grid-column:1/-1;display:flex;align-items:center;justify-content:center;height:150px;color:var(--text-muted)"><div>Memuat paket...</div></div>';
+            try {
+                const resp = await fetch(`/inventory/bundles/search?q=${encodeURIComponent(q)}`, { headers: { 'X-CSRF-TOKEN': CSRF } });
+                const bundles = await resp.json();
+                if (!bundles.length) {
+                    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted)">Tidak ada paket produk aktif.</div>';
+                    return;
+                }
+                grid.innerHTML = bundles.map(b => `
+                    <div onclick="addBundleToCart(${b.id})" style="background:var(--bg-card);border:2px solid rgba(16,185,129,0.3);border-radius:14px;padding:14px;cursor:pointer;transition:all .2s;"
+                        onmouseover="this.style.borderColor='#059669';this.style.transform='translateY(-2px)'"
+                        onmouseout="this.style.borderColor='rgba(16,185,129,0.3)';this.style.transform=''">
+                        <div style="font-size:22px;text-align:center;margin-bottom:6px;">📦</div>
+                        <div style="font-weight:700;font-size:13px;text-align:center;margin-bottom:4px;">${b.name}</div>
+                        <div style="font-size:10px;color:var(--text-muted);text-align:center;margin-bottom:8px;">${b.items.map(i => `${i.quantity}× ${i.product_name}`).join(' + ')}</div>
+                        ${b.discount_pct > 0 ? `<div style="text-align:center;text-decoration:line-through;font-size:11px;color:var(--text-muted);">Rp ${b.normal_total.toLocaleString('id-ID')}</div>` : ''}
+                        <div style="text-align:center;font-weight:800;color:#059669;">Rp ${b.bundle_price.toLocaleString('id-ID')}</div>
+                        ${b.discount_pct > 0 ? `<div style="text-align:center;"><span class="badge" style="background:#D1FAE5;color:#065F46;font-size:10px;">Hemat ${b.discount_pct}%</span></div>` : ''}
+                    </div>
+                `).join('');
+                // store bundles in window map
+                window.bundlesMap = window.bundlesMap || {};
+                bundles.forEach(b => window.bundlesMap[b.id] = b);
+            } catch(e) {
+                grid.innerHTML = '<div style="grid-column:1/-1;color:var(--color-danger);text-align:center;padding:40px">Gagal memuat paket</div>';
+            }
+        }
+
+        function addBundleToCart(bundleId) {
+            const b = window.bundlesMap && window.bundlesMap[bundleId];
+            if (!b) return;
+            // Add each bundle component as individual cart items with bundle tag
+            b.items.forEach(item => {
+                const existing = cart.find(c => c.id === item.variant_id && c.bundle_id === bundleId);
+                if (existing) {
+                    existing.quantity += item.quantity;
+                } else {
+                    cart.push({
+                        id: item.variant_id,
+                        bundle_id: bundleId,
+                        bundle_name: b.name,
+                        name: item.product_name,
+                        variant: item.variant_label,
+                        quantity: item.quantity,
+                        unit_price: 0, // price handled at bundle level
+                        discount_amount: 0,
+                    });
+                }
+            });
+            // Add bundle summary line (for display & billing)
+            const bundleLine = cart.find(c => c.id === `bundle_${bundleId}`);
+            if (bundleLine) {
+                bundleLine.quantity++;
+            } else {
+                cart.push({
+                    id: `bundle_${bundleId}`,
+                    is_bundle: true,
+                    bundle_id: bundleId,
+                    name: `📦 ${b.name}`,
+                    variant: b.items.map(i => `${i.quantity}× ${i.product_name}`).join(', '),
+                    quantity: 1,
+                    unit_price: b.bundle_price,
+                    discount_amount: 0,
+                });
+                // Remove component zero-price lines from cart (they're for stock tracking)
+                cart = cart.filter(c => !(c.bundle_id === bundleId && c.id !== `bundle_${bundleId}`));
+            }
+            renderCart();
         }
 
         function filterCategory(categoryId, btn) {
@@ -1192,6 +1309,7 @@
                 point_discount: parseFloat(document.getElementById('pointDiscountAmt')?.value) || 0,
                 notes: document.getElementById('notesInput')?.value || null,
                 customer_id: customerId,
+                salesperson_id: document.getElementById('salespersonSelect')?.value || null,
             };
 
             const payBtn = document.getElementById('processPayBtn');
