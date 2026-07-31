@@ -59,9 +59,78 @@ class StockController extends Controller
             'notes' => 'required|string|min:5',
         ]);
 
-        $variant = ProductVariant::find($request->product_variant_id);
-        $this->stockService->adjustStock($variant, $request->new_quantity, $request->notes);
+        $this->stockService->adjustStock(
+            $request->product_variant_id,
+            $request->new_quantity,
+            $request->notes
+        );
 
-        return back()->with('success', 'Stok berhasil disesuaikan.');
+        return back()->with('success', 'Stok berhasil diperbarui!');
+    }
+
+    public function restockAssistant()
+    {
+        $startDate = now()->subDays(30);
+
+        $salesData = \App\Models\TransactionItem::select('product_variant_id', \DB::raw('SUM(quantity) as sold_qty'))
+            ->whereHas('transaction', fn($q) => $q->where('status', 'completed')->where('created_at', '>=', $startDate))
+            ->groupBy('product_variant_id')
+            ->pluck('sold_qty', 'product_variant_id');
+
+        $variants = ProductVariant::with(['product'])->where('is_active', true)->get();
+
+        $stats = ['critical' => 0, 'warning' => 0, 'attention' => 0, 'safe' => 0];
+        $recommendations = [];
+
+        foreach ($variants as $variant) {
+            $sold30d = (int)($salesData[$variant->id] ?? 0);
+            $avgPerDay = $sold30d / 30.0;
+            $stock = (int)$variant->stock_qty;
+
+            if ($avgPerDay > 0) {
+                $daysRemaining = (int)floor($stock / $avgPerDay);
+            } else {
+                $daysRemaining = null;
+            }
+
+            if ($daysRemaining !== null && $daysRemaining <= 7) {
+                $status = 'critical';
+                $stats['critical']++;
+                $recommendedQty = max(10, (int)ceil($avgPerDay * 30) - $stock);
+                $recommendation = "💡 Pesan secepatnya minimal {$recommendedQty} pcs!";
+            } elseif ($daysRemaining !== null && $daysRemaining <= 14) {
+                $status = 'warning';
+                $stats['warning']++;
+                $recommendedQty = max(5, (int)ceil($avgPerDay * 30) - $stock);
+                $recommendation = "⚠️ Buat Purchase Order (PO) minggu ini (~{$recommendedQty} pcs).";
+            } elseif ($daysRemaining !== null && $daysRemaining <= 30) {
+                $status = 'attention';
+                $stats['attention']++;
+                $recommendation = "ℹ️ Pantau stok, cukup untuk ~{$daysRemaining} hari.";
+            } else {
+                $status = 'safe';
+                $stats['safe']++;
+                $recommendation = null;
+            }
+
+            $recommendations[] = [
+                'product_name'   => $variant->product->name ?? 'Produk',
+                'variant_label'  => $variant->variant_label,
+                'sku'            => $variant->sku,
+                'stock'          => $stock,
+                'sold_30d'       => $sold30d,
+                'avg_per_day'    => $avgPerDay,
+                'days_remaining' => $daysRemaining,
+                'status'         => $status,
+                'recommendation' => $recommendation,
+            ];
+        }
+
+        usort($recommendations, function ($a, $b) {
+            $order = ['critical' => 1, 'warning' => 2, 'attention' => 3, 'safe' => 4];
+            return $order[$a['status']] <=> $order[$b['status']];
+        });
+
+        return view('inventory.restock-assistant', compact('recommendations', 'stats'));
     }
 }
