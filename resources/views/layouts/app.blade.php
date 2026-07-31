@@ -158,6 +158,15 @@
                     @endif
                 </a>
 
+                <a href="{{ route('inventory.stock.restock-assistant') }}"
+                    class="nav-item {{ request()->routeIs('inventory.stock.restock-assistant') ? 'active' : '' }}"
+                    data-tooltip="Restock Assistant">
+                    <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    <span class="nav-label">Restock Assistant</span>
+                </a>
+
                 <a href="{{ route('inventory.promotions.index') }}"
                     class="nav-item {{ request()->routeIs('inventory.promotions.*') ? 'active' : '' }}"
                     data-tooltip="Promosi & Voucher">
@@ -411,6 +420,15 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                     </svg>
                     <span class="nav-label">Cabang & Outlet</span>
+                </a>
+
+                <a href="{{ route('settings.integrations.index') }}"
+                    class="nav-item {{ request()->routeIs('settings.integrations.*') ? 'active' : '' }}"
+                    data-tooltip="Integrasi E-Commerce">
+                    <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+                    </svg>
+                    <span class="nav-label">Sync E-Commerce</span>
                 </a>
 
                 <a href="{{ route('settings.index') }}"
