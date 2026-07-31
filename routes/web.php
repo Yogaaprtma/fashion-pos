@@ -114,6 +114,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/stock', [\App\Http\Controllers\Inventory\StockController::class, 'index'])->name('stock.index');
         Route::get('/stock/movements', [\App\Http\Controllers\Inventory\StockController::class, 'movements'])->name('stock.movements');
         Route::get('/stock/low', [\App\Http\Controllers\Inventory\StockController::class, 'lowStock'])->name('stock.low');
+        Route::get('/stock/restock-assistant', [\App\Http\Controllers\Inventory\StockController::class, 'restockAssistant'])->name('stock.restock-assistant');
         Route::post('/stock/adjust', [\App\Http\Controllers\Inventory\StockController::class, 'adjust'])->middleware('permission:inventory.manage')->name('stock.adjust');
 
         // Stock Opname
@@ -224,7 +225,19 @@ Route::middleware('auth')->group(function () {
         
         // Branches
         Route::resource('branches', \App\Http\Controllers\Setting\BranchController::class)->except(['show']);
+
+        // E-Commerce Integrations
+        Route::get('/integrations', [\App\Http\Controllers\Setting\IntegrationController::class, 'index'])->name('integrations.index');
+        Route::post('/integrations', [\App\Http\Controllers\Setting\IntegrationController::class, 'store'])->name('integrations.store');
+        Route::patch('/integrations/{integration}/toggle', [\App\Http\Controllers\Setting\IntegrationController::class, 'toggle'])->name('integrations.toggle');
+        Route::delete('/integrations/{integration}', [\App\Http\Controllers\Setting\IntegrationController::class, 'destroy'])->name('integrations.destroy');
     });
+
+    // ============================================================
+    // EXTERNAL API WEBHOOK SYNC
+    // ============================================================
+    Route::get('/api/v1/external/stock-sync', [\App\Http\Controllers\Api\ExternalSyncController::class, 'getStock']);
+    Route::post('/api/v1/external/orders', [\App\Http\Controllers\Api\ExternalSyncController::class, 'handleOnlineOrder']);
 
     // ============================================================
     // AUDIT LOG
