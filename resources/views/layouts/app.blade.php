@@ -109,11 +109,11 @@
                     <span class="nav-label">Produk</span>
                 </a>
 
-                <a href="{{ route('inventory.barcode-generator') }}"
-                    class="nav-item {{ request()->routeIs('inventory.barcode*') ? 'active' : '' }}"
+                <a href="{{ route('inventory.barcode-labels.index') }}"
+                    class="nav-item {{ request()->routeIs('inventory.barcode-labels*') ? 'active' : '' }}"
                     data-tooltip="Cetak Label">
                     <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h2v12H4V6zm4 0h2v12H8V6zm4 0h1v12h-1V6zm3 0h1v12h-1V6zm3 0h2v12h-2V6z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
                     </svg>
                     <span class="nav-label">Cetak Label</span>
                 </a>
@@ -253,6 +253,15 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                     <span class="nav-label">Lap. Penjualan</span>
+                </a>
+
+                <a href="{{ route('reports.commission') }}"
+                    class="nav-item {{ request()->routeIs('reports.commission*') ? 'active' : '' }}"
+                    data-tooltip="Komisi SPG">
+                    <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    <span class="nav-label">Komisi SPG</span>
                 </a>
 
                 @if(auth()->user()->canAccess('report.financial'))
