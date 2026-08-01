@@ -72,10 +72,18 @@ class TransactionService
                 $dueDate = null;
             }
 
+            $salespersonId = $data['salesperson_id'] ?? null;
+            $commissionAmount = 0;
+            if ($salespersonId) {
+                $commissionPercent = (float) StoreSetting::get('spg_commission_percent', '2.0');
+                $commissionAmount = $grandTotal * ($commissionPercent / 100);
+            }
+
             // Create transaction
             $transaction = Transaction::create([
                 'cashier_session_id' => $session->id,
                 'customer_id' => $data['customer_id'] ?? null,
+                'salesperson_id' => $salespersonId,
                 'invoice_number' => $invoiceNumber,
                 'subtotal' => $subtotal,
                 'discount_amount' => $discountAmount,
@@ -89,6 +97,7 @@ class TransactionService
                 'tax_percent' => $taxPercent,
                 'grand_total' => $grandTotal,
                 'paid_amount' => $paidAmount,
+                'commission_amount' => $commissionAmount,
                 'change_amount' => $changeAmount,
                 'status' => 'completed',
                 'payment_status' => $paymentStatus,
