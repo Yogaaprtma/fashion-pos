@@ -10,6 +10,7 @@ class Transaction extends Model
         'cashier_session_id',
         'invoice_number',
         'customer_id',
+        'salesperson_id',
         'subtotal',
         'discount_amount',
         'discount_percent',
@@ -17,6 +18,7 @@ class Transaction extends Model
         'tax_percent',
         'grand_total',
         'paid_amount',
+        'commission_amount',
         'change_amount',
         'status',
         'voided_by',
@@ -39,6 +41,7 @@ class Transaction extends Model
         'tax_amount' => 'decimal:2',
         'grand_total' => 'decimal:2',
         'paid_amount' => 'decimal:2',
+        'commission_amount' => 'decimal:2',
         'change_amount' => 'decimal:2',
         'voided_at' => 'datetime',
         'promotion_discount' => 'decimal:2',
@@ -48,6 +51,11 @@ class Transaction extends Model
         'points_earned' => 'integer',
         'points_used' => 'integer',
     ];
+
+    public function salesperson()
+    {
+        return $this->belongsTo(User::class, 'salesperson_id');
+    }
 
     public function cashierSession()
     {
