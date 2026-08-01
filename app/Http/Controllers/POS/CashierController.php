@@ -33,8 +33,9 @@ class CashierController extends Controller
             ->get();
 
         $storeName = StoreSetting::get('store_name', 'FashionPOS');
+        $salespersons = \App\Models\User::where('is_active', true)->orderBy('name')->get(['id', 'name']);
 
-        return view('pos.cashier', compact('session', 'paymentMethods', 'categories', 'storeName'));
+        return view('pos.cashier', compact('session', 'paymentMethods', 'categories', 'storeName', 'salespersons'));
     }
 
     public function cds()
