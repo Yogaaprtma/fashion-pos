@@ -118,6 +118,15 @@
                     <span class="nav-label">Cetak Label</span>
                 </a>
 
+                <a href="{{ route('inventory.bundles.index') }}"
+                    class="nav-item {{ request()->routeIs('inventory.bundles*') ? 'active' : '' }}"
+                    data-tooltip="Produk Paket">
+                    <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                    </svg>
+                    <span class="nav-label">Produk Paket</span>
+                </a>
+
                 <a href="{{ route('inventory.categories.index') }}"
                     class="nav-item {{ request()->routeIs('inventory.categories.*') ? 'active' : '' }}"
                     data-tooltip="Kategori">
