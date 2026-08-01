@@ -10,12 +10,52 @@ use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade\Pdf;
 
+use Illuminate\Support\Facades\DB;
+
 class ReportController extends Controller
 {
     public function __construct(
         private ReportService $reportService,
         private StockService $stockService
     ) {}
+
+    public function commissionIndex(Request $request)
+    {
+        $startDate = $request->start_date ?? today()->startOfMonth()->format('Y-m-d');
+        $endDate = $request->end_date ?? today()->format('Y-m-d');
+        $salespersonId = $request->salesperson_id;
+
+        $query = \App\Models\Transaction::with(['salesperson', 'cashierSession.user'])
+            ->where('status', 'completed')
+            ->whereNotNull('salesperson_id')
+            ->whereBetween(DB::raw('DATE(created_at)'), [$startDate, $endDate]);
+
+        if ($salespersonId) {
+            $query->where('salesperson_id', $salespersonId);
+        }
+
+        $transactions = (clone $query)->orderBy('created_at', 'desc')->paginate(20);
+
+        // Summary per SPG
+        $summary = \App\Models\Transaction::select(
+                'salesperson_id',
+                DB::raw('COUNT(id) as total_transactions'),
+                DB::raw('SUM(grand_total) as total_sales'),
+                DB::raw('SUM(commission_amount) as total_commission')
+            )
+            ->where('status', 'completed')
+            ->whereNotNull('salesperson_id')
+            ->whereBetween(DB::raw('DATE(created_at)'), [$startDate, $endDate])
+            ->when($salespersonId, fn($q) => $q->where('salesperson_id', $salespersonId))
+            ->groupBy('salesperson_id')
+            ->with('salesperson')
+            ->get();
+
+        $salespersons = User::where('is_active', true)->orderBy('name')->get();
+        $commissionRate = \App\Models\StoreSetting::get('spg_commission_percent', '2.0');
+
+        return view('reports.commission', compact('transactions', 'summary', 'startDate', 'endDate', 'salespersonId', 'salespersons', 'commissionRate'));
+    }
 
     public function salesIndex(Request $request)
     {
